@@ -1,0 +1,14 @@
+package de.caritas.cob.liveservice.model;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class WebSocketUserSession {
+
+  private String websocketSessionId;
+  private String subscriptionId;
+  private String userId;
+
+}
