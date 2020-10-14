@@ -2,17 +2,13 @@ package de.caritas.cob.liveservice.service;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
-import static org.keycloak.adapters.rotation.AdapterRSATokenVerifier.verifyToken;
 import static org.springframework.messaging.support.MessageHeaderAccessor.getAccessor;
 
 import de.caritas.cob.liveservice.exception.InvalidAccessTokenException;
 import de.caritas.cob.liveservice.model.WebSocketUserSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.keycloak.adapters.KeycloakDeploymentBuilder;
-import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.keycloak.common.VerificationException;
-import org.keycloak.representations.AccessToken;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
@@ -27,11 +23,10 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
 
   private static final String SUBSCRIPTION_ID = "simpSubscriptionId";
   private static final String SESSION_ID = "simpSessionId";
-  private static final String KEYCLOAK_USER_ID = "userId";
   private static final String ACCESS_TOKEN = "accessToken";
   
-  private final @NonNull KeycloakSpringBootProperties keyCloakConfiguration;
-  private final @NonNull SubscribedSocketUserService subscribedSocketUserService;
+  private final @NonNull SocketUserRegistry socketUserRegistry;
+  private final @NonNull KeycloakTokenObserver keyCloakTokenObserver;
 
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -57,7 +52,7 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
       subscribe(message, socketSessionId);
     } else if (StompCommand.DISCONNECT.equals(accessorCommand) || StompCommand.ERROR.equals(
         accessorCommand)) {
-      this.subscribedSocketUserService.removeSession(socketSessionId);
+      this.socketUserRegistry.removeSession(socketSessionId);
     }
   }
 
@@ -70,14 +65,13 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
       String socketSessionId) {
     String token = accessor.getFirstNativeHeader(ACCESS_TOKEN);
     try {
-      AccessToken accessToken = verifyToken(token,
-          KeycloakDeploymentBuilder.build(this.keyCloakConfiguration));
+      String userId = this.keyCloakTokenObserver.observeUserId(token);
       WebSocketUserSession webSocketUserSession = WebSocketUserSession.builder()
-          .userId(accessToken.getOtherClaims().get(KEYCLOAK_USER_ID).toString())
+          .userId(userId)
           .websocketSessionId(socketSessionId)
           .build();
 
-      this.subscribedSocketUserService.addUser(webSocketUserSession);
+      this.socketUserRegistry.addUser(webSocketUserSession);
     } catch (VerificationException e) {
       throw new InvalidAccessTokenException(e);
     }
@@ -85,7 +79,7 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
 
   private void subscribe(Message<?> message, String socketSessionId) {
     String subscriptionId = observerHeaderField(message, SUBSCRIPTION_ID);
-    this.subscribedSocketUserService.findUserBySessionId(socketSessionId)
+    this.socketUserRegistry.findUserBySessionId(socketSessionId)
         .setSubscriptionId(subscriptionId);
   }
 
