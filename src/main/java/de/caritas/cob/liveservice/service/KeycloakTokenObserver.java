@@ -11,6 +11,9 @@ import org.keycloak.common.VerificationException;
 import org.keycloak.representations.AccessToken;
 import org.springframework.stereotype.Component;
 
+/**
+ * Wrapper class to provide the validation and observation of an keycloak jwt token.
+ */
 @Component
 @RequiredArgsConstructor
 public class KeycloakTokenObserver {
@@ -19,6 +22,12 @@ public class KeycloakTokenObserver {
 
   private final @NonNull KeycloakSpringBootProperties keyCloakConfiguration;
 
+  /**
+   * Validates the token and returnes the user id.
+   *
+   * @param token the jwt bearer token
+   * @return the validated user id
+   */
   public String observeUserId(String token) throws VerificationException {
     if (isBlank(token)) {
       throw new VerificationException("Access token must not be null");

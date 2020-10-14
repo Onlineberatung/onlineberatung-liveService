@@ -17,6 +17,9 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Service;
 
+/**
+ * Interceptor to handle all client inbound messages.
+ */
 @Service
 @RequiredArgsConstructor
 public class ClientInboundChannelInterceptor implements ChannelInterceptor {
@@ -28,6 +31,13 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
   private final @NonNull SocketUserRegistry socketUserRegistry;
   private final @NonNull KeycloakTokenObserver keyCloakTokenObserver;
 
+  /**
+   * Method invocation everytime a socket message is send to the server and must be handled.
+   *
+   * @param message the {@link Message} to be handled
+   * @param channel the {@link MessageChannel}
+   * @return the intercepted message
+   */
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
     StompHeaderAccessor accessor = getAccessor(message, StompHeaderAccessor.class);

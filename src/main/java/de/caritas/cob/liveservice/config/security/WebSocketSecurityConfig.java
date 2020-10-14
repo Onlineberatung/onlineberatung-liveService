@@ -9,9 +9,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
 
+/**
+ * Configuration class for websocket security.
+ */
 @Configuration
 public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
+  /**
+   * Configures the security handling for incoming socket messages.
+   *
+   * @param messages the messages to be handled
+   */
   @Override
   protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
     messages
@@ -20,6 +28,11 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
         .anyMessage().permitAll();
   }
 
+  /**
+   * Decides if same origin should be disabled.
+   *
+   * @return true
+   */
   @Override
   protected boolean sameOriginDisabled() {
     return true;

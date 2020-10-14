@@ -3,6 +3,9 @@ package de.caritas.cob.liveservice.model;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Represents one socket user connection.
+ */
 @Data
 @Builder
 public class WebSocketUserSession {

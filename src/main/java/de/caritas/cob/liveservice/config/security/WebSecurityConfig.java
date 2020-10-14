@@ -13,9 +13,17 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
+/**
+ * Configuration class to provide the keycloak security configuration.
+ */
 @KeycloakConfiguration
 public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
+  /**
+   * Configures the basic http security behavior.
+   *
+   * @param http springs http security
+   */
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
@@ -34,11 +42,21 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         .hasRole("USER");
   }
 
+  /**
+   * Provides the authentication strategy.
+   *
+   * @return the configured {@link SessionAuthenticationStrategy}
+   */
   @Override
   protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
     return new NullAuthenticatedSessionStrategy();
   }
 
+  /**
+   * Provides the keycloak configuration resolver bean.
+   *
+   * @return the configured {@link KeycloakConfigResolver}
+   */
   @Bean
   public KeycloakConfigResolver keycloakConfigResolver() {
     return new KeycloakSpringBootConfigResolver();
