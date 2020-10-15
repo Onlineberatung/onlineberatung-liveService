@@ -3,6 +3,7 @@ package de.caritas.cob.liveservice.config;
 import de.caritas.cob.liveservice.service.ClientInboundChannelInterceptor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -18,6 +19,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+  @Value("{app.base.url}")
+  private String appBaseUrl;
 
   private final @NonNull ClientInboundChannelInterceptor clientInboundChannelInterceptor;
 
@@ -39,7 +43,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
    */
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
-    registry.addEndpoint("/live").withSockJS();
+    registry.addEndpoint("/live")
+        .setAllowedOrigins(this.appBaseUrl)
+        .withSockJS();
   }
 
   /**
