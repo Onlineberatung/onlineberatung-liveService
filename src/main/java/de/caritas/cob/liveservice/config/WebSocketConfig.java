@@ -33,7 +33,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   }
 
   /**
-   * Registeres the global websocket endpoint.
+   * Registers the global websocket endpoint.
    *
    * @param registry the stomp endpoint registry
    */

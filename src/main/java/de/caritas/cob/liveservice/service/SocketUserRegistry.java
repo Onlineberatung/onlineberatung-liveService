@@ -17,7 +17,7 @@ public class SocketUserRegistry {
   private static final List<WebSocketUserSession> SUBSCRIBED_USERS = new CopyOnWriteArrayList<>();
 
   /**
-   * Adds the given {@link WebSocketUserSession} to the registy.
+   * Adds the given {@link WebSocketUserSession} to the registry.
    *
    * @param webSocketUserSession the user session to be added
    */
@@ -51,7 +51,7 @@ public class SocketUserRegistry {
   }
 
   /**
-   * returns all current registered socket session users.
+   * Returns all current registered socket session users.
    *
    * @return all socket session users
    */

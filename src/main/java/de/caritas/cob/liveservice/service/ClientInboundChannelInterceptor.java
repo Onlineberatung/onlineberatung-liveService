@@ -83,7 +83,7 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
 
       this.socketUserRegistry.addUser(webSocketUserSession);
     } catch (VerificationException e) {
-      throw new InvalidAccessTokenException(e);
+      throw new InvalidAccessTokenException("Token is invalid");
     }
   }
 

@@ -8,10 +8,10 @@ public class InvalidAccessTokenException extends RuntimeException {
   /**
    * Constructor to create a new {@link InvalidAccessTokenException}.
    *
-   * @param cause the cause to wrap
+   * @param message the error message
    */
-  public InvalidAccessTokenException(Exception cause) {
-    super(cause);
+  public InvalidAccessTokenException(String message) {
+    super(message);
   }
 
 }

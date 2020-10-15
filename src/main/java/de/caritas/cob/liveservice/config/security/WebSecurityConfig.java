@@ -28,8 +28,6 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     http
         .csrf().disable()
-        .httpBasic().disable()
-        .formLogin().disable()
         .authenticationProvider(keycloakAuthenticationProvider())
         .addFilterBefore(keycloakAuthenticationProcessingFilter(), BasicAuthenticationFilter.class)
         .sessionManagement()
@@ -39,7 +37,7 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         .authorizeRequests()
         .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/live"))).permitAll()
         .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/live/**")))
-        .hasRole("USER");
+        .permitAll();
   }
 
   /**
