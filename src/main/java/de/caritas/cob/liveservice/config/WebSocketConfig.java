@@ -20,7 +20,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  @Value("{app.base.url}")
+  @Value("${app.base.url}")
   private String appBaseUrl;
 
   private final @NonNull ClientInboundChannelInterceptor clientInboundChannelInterceptor;
