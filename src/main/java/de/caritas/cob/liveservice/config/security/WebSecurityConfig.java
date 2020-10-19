@@ -1,5 +1,6 @@
 package de.caritas.cob.liveservice.config.security;
 
+import de.caritas.cob.liveservice.config.SpringFoxConfig;
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
@@ -35,6 +36,7 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         .sessionAuthenticationStrategy(sessionAuthenticationStrategy())
         .and()
         .authorizeRequests()
+        .antMatchers(SpringFoxConfig.WHITE_LIST).permitAll()
         .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/live"))).permitAll()
         .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/live/**")))
         .permitAll();
