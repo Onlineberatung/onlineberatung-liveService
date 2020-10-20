@@ -1,4 +1,4 @@
-package de.caritas.cob.liveservice.service;
+package de.caritas.cob.liveservice.websocket.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -11,8 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import de.caritas.cob.liveservice.exception.InvalidAccessTokenException;
-import de.caritas.cob.liveservice.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.exception.InvalidAccessTokenException;
+import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

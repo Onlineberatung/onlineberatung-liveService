@@ -1,6 +1,6 @@
 package de.caritas.cob.liveservice.config.security;
 
-import de.caritas.cob.liveservice.config.SpringFoxConfig;
+import de.caritas.cob.liveservice.api.config.SpringFoxConfig;
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;

@@ -9,8 +9,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 
-import de.caritas.cob.liveservice.model.WebSocketUserSession;
-import de.caritas.cob.liveservice.service.SocketUserRegistry;
+import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.service.SocketUserRegistry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;

@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import de.caritas.cob.liveservice.service.KeycloakTokenObserver;
+import de.caritas.cob.liveservice.websocket.service.KeycloakTokenObserver;
 import java.lang.reflect.Type;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

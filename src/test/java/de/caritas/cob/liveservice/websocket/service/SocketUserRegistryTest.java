@@ -1,4 +1,4 @@
-package de.caritas.cob.liveservice.service;
+package de.caritas.cob.liveservice.websocket.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import de.caritas.cob.liveservice.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import org.junit.Before;
 import org.junit.Test;
 

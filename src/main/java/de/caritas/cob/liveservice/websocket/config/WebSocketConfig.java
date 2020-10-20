@@ -1,6 +1,6 @@
-package de.caritas.cob.liveservice.config;
+package de.caritas.cob.liveservice.websocket.config;
 
-import de.caritas.cob.liveservice.service.ClientInboundChannelInterceptor;
+import de.caritas.cob.liveservice.websocket.service.ClientInboundChannelInterceptor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

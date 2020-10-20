@@ -1,4 +1,4 @@
-package de.caritas.cob.liveservice.config;
+package de.caritas.cob.liveservice.api.config;
 
 import java.time.LocalTime;
 import java.util.Collections;

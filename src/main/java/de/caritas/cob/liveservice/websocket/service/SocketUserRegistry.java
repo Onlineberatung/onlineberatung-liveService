@@ -1,8 +1,8 @@
-package de.caritas.cob.liveservice.service;
+package de.caritas.cob.liveservice.websocket.service;
 
 import static java.util.Objects.nonNull;
 
-import de.caritas.cob.liveservice.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
