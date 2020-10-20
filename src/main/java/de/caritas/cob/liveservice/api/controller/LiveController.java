@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +28,7 @@ public class LiveController implements LiveeventApi {
    */
   @Override
   public ResponseEntity<Void> sendLiveEvent(@Valid @RequestParam List<String> userIds,
-      @Valid @RequestParam String eventType) {
+      @Valid @RequestBody String eventType) {
     EventType.fromValue(eventType);
     return new ResponseEntity<>(HttpStatus.OK);
   }

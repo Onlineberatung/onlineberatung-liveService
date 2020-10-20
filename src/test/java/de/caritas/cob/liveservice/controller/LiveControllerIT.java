@@ -1,7 +1,6 @@
 package de.caritas.cob.liveservice.controller;
 
 import static de.caritas.cob.liveservice.api.model.EventType.DIRECTMESSAGE;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,16 +30,14 @@ public class LiveControllerIT {
   public void sendLiveEvent_Should_returnStatusOk_When_calledWithValidParams() throws Exception {
     mockMvc.perform(post(LIVEEVENT_SEND)
         .param(USER_IDS_PARAM, "1", "2").contentType(APPLICATION_JSON)
-        .param(EVENT_TYPE_PARAM, DIRECTMESSAGE.toString())
-        .contentType(APPLICATION_FORM_URLENCODED))
+        .content(DIRECTMESSAGE.toString()).contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
   }
 
   @Test
   public void sendLiveEvent_Should_returnBadRequest_When_userIdsAreMissing() throws Exception {
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(EVENT_TYPE_PARAM, DIRECTMESSAGE.toString())
-        .contentType(APPLICATION_FORM_URLENCODED))
+        .content(DIRECTMESSAGE.toString()).contentType(APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
 
