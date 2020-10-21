@@ -81,9 +81,10 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     socketStompClient.setMessageConverter(new MessageConverter() {
       @SneakyThrows
       @Override
-      public Object fromMessage(Message<?> message, Class<?> aClass) {
-        return new ObjectMapper().readValue((byte[]) message.getPayload(), aClass);
+      public Object fromMessage(Message<?> message, Class<?> targetType) {
+        return new ObjectMapper().readValue((byte[]) message.getPayload(), targetType);
       }
+
       @Override
       public Message<?> toMessage(Object o, MessageHeaders messageHeaders) {
         return null;
@@ -108,6 +109,7 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
       public Type getPayloadType(StompHeaders headers) {
         return LiveEventMessage.class;
       }
+
       @Override
       public void handleFrame(StompHeaders headers, Object payload) {
         eventCollector.add((LiveEventMessage) payload);
