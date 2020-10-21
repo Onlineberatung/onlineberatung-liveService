@@ -1,5 +1,7 @@
 package de.caritas.cob.liveservice.websocket.config;
 
+import static de.caritas.cob.liveservice.websocket.model.Subscription.EVENTS;
+
 import de.caritas.cob.liveservice.websocket.service.ClientInboundChannelInterceptor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
    */
   @Override
   public void configureMessageBroker(MessageBrokerRegistry config) {
-    config.enableSimpleBroker("/events")
+    config.enableSimpleBroker(EVENTS.getSubscriptionEndpoint())
         .setTaskScheduler(new DefaultManagedTaskScheduler());
   }
 

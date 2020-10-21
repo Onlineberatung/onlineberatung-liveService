@@ -2,6 +2,7 @@ package de.caritas.cob.liveservice.websocket.service;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -96,6 +97,24 @@ public class WebSocketSessionIdResolverTest {
     assertThat(sessionIds, hasSize(2));
     assertThat(sessionIds.get(0), is("21"));
     assertThat(sessionIds.get(1), is("71"));
+  }
+
+  @Test
+  public void resolveUserIds_Should_returnResolvedSessions_When_userIsRegisteredMultipleTimes() {
+    List<String> userIds = singletonList("1");
+    List<WebSocketUserSession> registeredSessions = asList(
+        userSession("1", "21"),
+        userSession("1", "41"),
+        userSession("1", "71")
+    );
+    when(socketUserRegistry.retrieveAllUsers()).thenReturn(registeredSessions);
+
+    List<String> sessionIds = this.sessionIdResolver.resolveUserIds(userIds);
+
+    assertThat(sessionIds, hasSize(3));
+    assertThat(sessionIds.get(0), is("21"));
+    assertThat(sessionIds.get(1), is("41"));
+    assertThat(sessionIds.get(2), is("71"));
   }
 
 }

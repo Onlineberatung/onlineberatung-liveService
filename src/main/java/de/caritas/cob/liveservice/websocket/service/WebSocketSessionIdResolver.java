@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Resolver to find all registered session ids with given user ids
+ * Resolver to find all registered session ids with given user ids.
  */
 @Component
 @RequiredArgsConstructor

@@ -1,10 +1,12 @@
 package de.caritas.cob.liveservice.api.controller;
 
+import de.caritas.cob.liveservice.api.facade.LiveEventFacade;
 import de.caritas.cob.liveservice.api.model.EventType;
 import de.caritas.cob.liveservice.generated.api.controller.LiveeventApi;
 import io.swagger.annotations.Api;
 import java.util.List;
 import javax.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "live-controller")
 public class LiveController implements LiveeventApi {
 
+  private final @NonNull LiveEventFacade liveEventFacade;
+
   /**
    * Trigger entry point for live event sending.
    *
@@ -29,7 +33,7 @@ public class LiveController implements LiveeventApi {
   @Override
   public ResponseEntity<Void> sendLiveEvent(@Valid @RequestParam List<String> userIds,
       @Valid @RequestBody String eventType) {
-    EventType.fromValue(eventType);
+    this.liveEventFacade.triggerLiveEvent(userIds, eventType);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

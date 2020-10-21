@@ -1,27 +1,26 @@
-package de.caritas.cob.liveservice.controller;
+package de.caritas.cob.liveservice.api.controller;
 
 import static de.caritas.cob.liveservice.api.model.EventType.DIRECTMESSAGE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import de.caritas.cob.liveservice.api.controller.LiveController;
+import de.caritas.cob.liveservice.LiveServiceApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(LiveController.class)
+@SpringBootTest(classes = LiveServiceApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class LiveControllerIT {
 
-  private static final String LIVEEVENT_SEND = "/liveevent/send";
-  private static final String USER_IDS_PARAM = "userIds";
-  public static final String EVENT_TYPE_PARAM = "eventType";
+  public static final String LIVEEVENT_SEND = "/liveevent/send";
+  public static final String USER_IDS_PARAM = "userIds";
 
   @Autowired
   private MockMvc mockMvc;
@@ -45,6 +44,14 @@ public class LiveControllerIT {
   public void sendLiveEvent_Should_returnBadRequest_When_eventTypeIsMissing() throws Exception {
     mockMvc.perform(post(LIVEEVENT_SEND)
         .param(USER_IDS_PARAM, "1", "2").contentType(APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void sendLiveEvent_Should_returnBadRequest_When_calledWithInvalidEventType() throws Exception {
+    mockMvc.perform(post(LIVEEVENT_SEND)
+        .param(USER_IDS_PARAM, "1", "2").contentType(APPLICATION_JSON)
+        .content("InvalidEventType").contentType(APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
 
