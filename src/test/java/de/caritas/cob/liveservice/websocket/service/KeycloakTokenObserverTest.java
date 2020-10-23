@@ -1,4 +1,4 @@
-package de.caritas.cob.liveservice.service;
+package de.caritas.cob.liveservice.websocket.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;

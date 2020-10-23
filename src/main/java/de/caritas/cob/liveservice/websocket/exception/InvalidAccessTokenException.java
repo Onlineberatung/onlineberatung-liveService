@@ -1,4 +1,4 @@
-package de.caritas.cob.liveservice.exception;
+package de.caritas.cob.liveservice.websocket.exception;
 
 /**
  * Exception for authentication errors.

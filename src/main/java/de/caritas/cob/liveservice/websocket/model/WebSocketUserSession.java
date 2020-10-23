@@ -1,4 +1,4 @@
-package de.caritas.cob.liveservice.model;
+package de.caritas.cob.liveservice.websocket.model;
 
 import lombok.Builder;
 import lombok.Data;

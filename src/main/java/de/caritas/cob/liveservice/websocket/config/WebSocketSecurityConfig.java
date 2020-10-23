@@ -1,4 +1,4 @@
-package de.caritas.cob.liveservice.config.security;
+package de.caritas.cob.liveservice.websocket.config;
 
 import static org.springframework.messaging.simp.SimpMessageType.CONNECT;
 import static org.springframework.messaging.simp.SimpMessageType.DISCONNECT;

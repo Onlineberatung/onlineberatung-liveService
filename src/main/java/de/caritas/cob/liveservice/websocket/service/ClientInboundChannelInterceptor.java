@@ -1,11 +1,11 @@
-package de.caritas.cob.liveservice.service;
+package de.caritas.cob.liveservice.websocket.service;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 import static org.springframework.messaging.support.MessageHeaderAccessor.getAccessor;
 
-import de.caritas.cob.liveservice.exception.InvalidAccessTokenException;
-import de.caritas.cob.liveservice.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.exception.InvalidAccessTokenException;
+import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.common.VerificationException;
