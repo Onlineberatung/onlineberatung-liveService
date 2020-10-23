@@ -118,7 +118,7 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
   }
 
   protected void performDisconnect(StompSession stompSession) {
-    stompSession.disconnect();;
+    stompSession.disconnect();
     await().until(stompSession::isConnected, equalTo(false));
   }
 
