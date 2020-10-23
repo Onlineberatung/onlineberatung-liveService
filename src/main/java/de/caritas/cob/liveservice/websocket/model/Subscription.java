@@ -7,7 +7,7 @@ public enum Subscription {
 
   EVENTS("/events");
 
-  private String subscriptionEndpoint;
+  private final String subscriptionEndpoint;
 
   Subscription(String subscriptionEndpoint) {
     this.subscriptionEndpoint = subscriptionEndpoint;
