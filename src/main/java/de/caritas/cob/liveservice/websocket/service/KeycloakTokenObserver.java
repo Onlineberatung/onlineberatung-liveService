@@ -1,7 +1,7 @@
 package de.caritas.cob.liveservice.websocket.service;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.keycloak.adapters.rotation.AdapterRSATokenVerifier.verifyToken;
+import static org.keycloak.adapters.rotation.AdapterTokenVerifier.verifyToken;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
