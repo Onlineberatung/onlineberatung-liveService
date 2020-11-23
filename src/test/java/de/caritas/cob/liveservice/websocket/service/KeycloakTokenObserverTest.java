@@ -9,7 +9,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.adapters.KeycloakDeploymentBuilder;
-import org.keycloak.adapters.rotation.AdapterRSATokenVerifier;
+import org.keycloak.adapters.rotation.AdapterTokenVerifier;
 import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.keycloak.common.VerificationException;
 import org.keycloak.representations.AccessToken;
@@ -19,7 +19,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AdapterRSATokenVerifier.class, KeycloakDeploymentBuilder.class})
+@PrepareForTest({AdapterTokenVerifier.class, KeycloakDeploymentBuilder.class})
 public class KeycloakTokenObserverTest {
 
   @InjectMocks
@@ -44,10 +44,10 @@ public class KeycloakTokenObserverTest {
   public void observeUserId_Should_returnUserId_When_tokenIsValid()
       throws VerificationException {
     mockStatic(KeycloakDeploymentBuilder.class);
-    mockStatic(AdapterRSATokenVerifier.class);
+    mockStatic(AdapterTokenVerifier.class);
     AccessToken accessToken = new AccessToken();
     accessToken.setOtherClaims("userId", "validId");
-    when(AdapterRSATokenVerifier.verifyToken(any(), any())).thenReturn(accessToken);
+    when(AdapterTokenVerifier.verifyToken(any(), any())).thenReturn(accessToken);
 
     String userId = this.keycloakTokenObserver.observeUserId("valid token");
     assertThat(userId, is("validId"));
