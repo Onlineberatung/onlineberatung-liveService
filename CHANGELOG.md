@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.1.0...v1.2.0) (2020-11-23)
+
+
+### Features
+
+* restrict release action to branches starting with release ([79585f6](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/79585f69241d1c28991d71847293deba6995e84c))
+* update keycloak to version 11.0.2 ([f73aefc](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/f73aefcd78a10ee76954b613165ba17e7a83a967))
+* update spring boot and dependencies ([4ea10b6](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/4ea10b6f2a0859b5a8e61d9fc4c83bba93e0a180))
+
+
+### Bug Fixes
+
+* deactivate keycloaks internal trust manager ([c914ca8](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/c914ca8e36350aadb79c3d483a446067941777f6))
+
 ## 1.1.0 (2020-10-28)
 
 
