@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.caritas.cob.liveservice.websocket.model.liveeventmessage.BasicLiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.LiveEventSendService;
 import de.caritas.cob.liveservice.websocket.service.WebSocketSessionIdResolver;
 import java.util.List;
@@ -58,7 +59,13 @@ public class LiveEventFacadeTest {
     this.liveEventFacade.triggerLiveEvent(expectedIds, DIRECTMESSAGE.toString());
 
     verify(this.liveEventSendService, times(1))
-        .sendLiveEventToUsers(eq(expectedIds), eq(DIRECTMESSAGE));
+        .sendLiveEventToUsers(eq(expectedIds), eq(buildBasicLiveEventMessage()));
+  }
+
+  private BasicLiveEventMessage buildBasicLiveEventMessage() {
+    return BasicLiveEventMessage.builder()
+        .eventType(DIRECTMESSAGE.toString())
+        .build();
   }
 
 }

@@ -35,10 +35,62 @@ paths:
           description: BAD REQUEST - invalid/incomplete request or body object
         500:
           description: INTERNAL SERVER ERROR - server encountered unexpected condition
-
+  /liveevent/video/request:
+    post:
+      tags:
+        - live-controller
+      summary: Start a video call request
+      operationId: videoCallRequest
+      parameters:
+        - name: userIds
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/VideoCallRequestDTO'
+      responses:
+        200:
+          description: OK - successfull operation
+        400:
+          description: BAD REQUEST - invalid/incomplete request or body object
+        500:
+          description: INTERNAL SERVER ERROR - server encountered unexpected condition
 components:
   schemas:
     EventType:
       type: string
       enum:
         - "directMessage"
+    VideoEventType:
+      type: string
+      enum:
+        - "videoCallRequest"
+        - "videoCallDeny"
+    VideoCallRequestDTO:
+      type: object
+      required:
+        - eventType
+        - videoChatUrl
+        - usernameConsultant
+        - rcRoomId
+      properties:
+        eventType:
+          $ref: '#/components/schemas/VideoEventType'
+        videoChatUrl:
+          type: string
+          example: video.domain.com/44c7644a-5977-11eb-ae93-0242ac130002
+          description: The url of the video server
+        usernameConsultant:
+          type: string
+          example: consultant
+          description: The username of the calling consultant
+        rcRoomId:
+          type: string
+          example: xGklslk2JJKK
+          description: The Rocket.Chat room id of the session

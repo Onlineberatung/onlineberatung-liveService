@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import de.caritas.cob.liveservice.websocket.model.LiveEventMessage;
+import de.caritas.cob.liveservice.websocket.model.liveeventmessage.BasicLiveEventMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -32,40 +33,40 @@ public class LiveEventSendServiceTest {
 
   @Test
   public void sendLiveEventToUsers_Should_notInteractWithMessagingTemplate_When_sessionIdsAreNull() {
-    this.liveEventSendService.sendLiveEventToUsers(null, DIRECTMESSAGE);
+    this.liveEventSendService.sendLiveEventToUsers(null, buildBasicLiveEventMessage());
 
     verifyNoInteractions(messagingTemplate);
   }
 
   @Test
   public void sendLiveEventToUsers_Should_notInteractWithMessagingTemplate_When_sessionIdsAreEmpty() {
-    this.liveEventSendService.sendLiveEventToUsers(emptyList(), DIRECTMESSAGE);
+    this.liveEventSendService.sendLiveEventToUsers(emptyList(), buildBasicLiveEventMessage());
 
     verifyNoInteractions(messagingTemplate);
   }
 
   @Test
   public void sendLiveEventToUsers_Should_sendEventMessageToExpectedUser_When_sessionIdIsGiven() {
-    this.liveEventSendService.sendLiveEventToUsers(singletonList("1"), DIRECTMESSAGE);
-    LiveEventMessage expectedMessage = LiveEventMessage.builder()
-        .eventType(DIRECTMESSAGE.toString())
-        .build();
+    this.liveEventSendService.sendLiveEventToUsers(singletonList("1"), buildBasicLiveEventMessage());
 
     verify(messagingTemplate, times(1))
-        .convertAndSendToUser(eq("1"), eq(EVENTS.getSubscriptionEndpoint()), eq(expectedMessage),
+        .convertAndSendToUser(eq("1"), eq(EVENTS.getSubscriptionEndpoint()), eq(buildBasicLiveEventMessage()),
             any(MessageHeaders.class));
   }
 
   @Test
   public void sendLiveEventToUsers_Should_sendEventMessageToAllUsers_When_sessionIdsAreGiven() {
-    this.liveEventSendService.sendLiveEventToUsers(asList("1", "2", "3", "4", "5"), DIRECTMESSAGE);
-    LiveEventMessage expectedMessage = LiveEventMessage.builder()
-        .eventType(DIRECTMESSAGE.toString())
-        .build();
+    this.liveEventSendService.sendLiveEventToUsers(asList("1", "2", "3", "4", "5"), buildBasicLiveEventMessage());
 
     verify(messagingTemplate, times(5))
-        .convertAndSendToUser(anyString(), eq(EVENTS.getSubscriptionEndpoint()), eq(expectedMessage),
+        .convertAndSendToUser(anyString(), eq(EVENTS.getSubscriptionEndpoint()), eq(buildBasicLiveEventMessage()),
             any(MessageHeaders.class));
+  }
+
+  private BasicLiveEventMessage buildBasicLiveEventMessage() {
+    return BasicLiveEventMessage.builder()
+        .eventType(DIRECTMESSAGE.toString())
+        .build();
   }
 
 }
