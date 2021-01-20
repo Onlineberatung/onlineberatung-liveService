@@ -27,7 +27,7 @@ paths:
         content:
           'application/json':
             schema:
-              $ref: '#/components/schemas/EventType'
+              $ref: '#/components/schemas/LiveEventMessage'
       responses:
         200:
           description: OK - successfull operation
@@ -35,53 +35,39 @@ paths:
           description: BAD REQUEST - invalid/incomplete request or body object
         500:
           description: INTERNAL SERVER ERROR - server encountered unexpected condition
-  /liveevent/video/request:
-    post:
-      tags:
-        - live-controller
-      summary: Start a video call request
-      operationId: videoCallRequest
-      parameters:
-        - name: userIds
-          in: query
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              $ref: '#/components/schemas/VideoCallRequestDTO'
-      responses:
-        200:
-          description: OK - successfull operation
-        400:
-          description: BAD REQUEST - invalid/incomplete request or body object
-        500:
-          description: INTERNAL SERVER ERROR - server encountered unexpected condition
+
 components:
   schemas:
+    LiveEventMessage:
+      type: object
+      required:
+        - eventType
+      properties:
+        eventType:
+          $ref: '#/components/schemas/EventType'
+        eventContent:
+          $ref: '#/components/schemas/EventContent'
+
     EventType:
       type: string
       enum:
         - "directMessage"
-    VideoEventType:
-      type: string
-      enum:
         - "videoCallRequest"
         - "videoCallDeny"
+
+    EventContent:
+      description: general used object for all possible incoming DTOs used for socket transfer
+      type:
+        object
+
     VideoCallRequestDTO:
+      description: the request DTO for event type videoCallRequest
       type: object
       required:
-        - eventType
         - videoChatUrl
         - usernameConsultant
         - rcRoomId
       properties:
-        eventType:
-          $ref: '#/components/schemas/VideoEventType'
         videoChatUrl:
           type: string
           example: video.domain.com/44c7644a-5977-11eb-ae93-0242ac130002

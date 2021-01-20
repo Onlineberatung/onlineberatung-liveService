@@ -4,7 +4,7 @@ import static de.caritas.cob.liveservice.websocket.model.Subscription.EVENTS;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import de.caritas.cob.liveservice.api.model.EventType;
-import de.caritas.cob.liveservice.websocket.model.liveeventmessage.LiveEventMessage;
+import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
