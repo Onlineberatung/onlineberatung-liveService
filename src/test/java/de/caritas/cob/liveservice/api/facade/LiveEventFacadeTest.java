@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.LiveEventSendService;
 import de.caritas.cob.liveservice.websocket.service.WebSocketSessionIdResolver;
 import java.util.List;
@@ -32,20 +33,21 @@ public class LiveEventFacadeTest {
   private LiveEventSendService liveEventSendService;
 
   @Test(expected = ResponseStatusException.class)
-  public void triggerLiveEvent_Should_throwBadRequestException_When_eventTypeIsNull() {
+  public void triggerLiveEvent_Should_throwBadRequestException_When_liveEventMessageIsNull() {
     this.liveEventFacade.triggerLiveEvent(emptyList(), null);
   }
 
   @Test(expected = ResponseStatusException.class)
-  public void triggerLiveEvent_Should_throwBadRequestException_When_eventTypeIsInvalid() {
-    this.liveEventFacade.triggerLiveEvent(emptyList(), "Invalid");
+  public void triggerLiveEvent_Should_throwBadRequestException_When_eventTypeIsNull() {
+    this.liveEventFacade.triggerLiveEvent(emptyList(), new LiveEventMessage().eventType(null));
   }
 
   @Test
   public void triggerLiveEvent_Should_callIdResolverWithIds_When_eventTypeIsValid() {
     List<String> expectedIds = asList("1", "2", "3");
 
-    this.liveEventFacade.triggerLiveEvent(expectedIds, DIRECTMESSAGE.toString());
+    this.liveEventFacade.triggerLiveEvent(expectedIds,
+        new LiveEventMessage().eventType(DIRECTMESSAGE));
 
     verify(this.sessionIdResolver, times(1)).resolveUserIds(eq(expectedIds));
   }
@@ -55,10 +57,11 @@ public class LiveEventFacadeTest {
     List<String> expectedIds = asList("1", "2", "3");
     when(this.sessionIdResolver.resolveUserIds(any())).thenReturn(expectedIds);
 
-    this.liveEventFacade.triggerLiveEvent(expectedIds, DIRECTMESSAGE.toString());
+    this.liveEventFacade
+        .triggerLiveEvent(expectedIds, new LiveEventMessage().eventType(DIRECTMESSAGE));
 
     verify(this.liveEventSendService, times(1))
-        .sendLiveEventToUsers(eq(expectedIds), eq(DIRECTMESSAGE));
+        .sendLiveEventToUsers(eq(expectedIds), eq(new LiveEventMessage().eventType(DIRECTMESSAGE)));
   }
 
 }

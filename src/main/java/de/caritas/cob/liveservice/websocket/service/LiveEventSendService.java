@@ -4,7 +4,7 @@ import static de.caritas.cob.liveservice.websocket.model.Subscription.EVENTS;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import de.caritas.cob.liveservice.api.model.EventType;
-import de.caritas.cob.liveservice.websocket.model.LiveEventMessage;
+import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +26,10 @@ public class LiveEventSendService {
    * Sends a live event with {@link EventType} to given socket sessions.
    *
    * @param socketSessionIds the session ids to send the event
-   * @param eventType the event type
+   * @param liveEventMessage the live event message object
    */
-  public void sendLiveEventToUsers(List<String> socketSessionIds, EventType eventType) {
+  public void sendLiveEventToUsers(List<String> socketSessionIds, LiveEventMessage liveEventMessage) {
     if (isNotEmpty(socketSessionIds)) {
-      LiveEventMessage liveEventMessage = LiveEventMessage.builder()
-          .eventType(eventType.toString())
-          .build();
       socketSessionIds.forEach(sessionId -> sendEventMessageToUser(liveEventMessage, sessionId));
     }
   }
