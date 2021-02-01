@@ -80,7 +80,7 @@ components:
         initiatorRcUserId:
           type: string
           example: "ag89h3tjkerg94t"
-          description: The Rocket.Chat user id of calling user
+          description: The Rocket.Chat user id of the calling user
         rcGroupId:
           type: string
           example: "xGklslk2JJKK"
