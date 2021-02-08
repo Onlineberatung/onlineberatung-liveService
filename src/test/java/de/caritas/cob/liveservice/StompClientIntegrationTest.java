@@ -7,8 +7,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.caritas.cob.liveservice.websocket.model.LiveEventMessage;
+import com.fasterxml.jackson.databind.RuntimeJsonMappingException;
+import de.caritas.cob.liveservice.api.model.EventType;
+import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.KeycloakTokenObserver;
 import java.lang.reflect.Type;
 import java.util.concurrent.BlockingQueue;
@@ -53,7 +56,8 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
   static final String THIRD_VALID_USER = "thirdValidUser";
 
   private static final String SOCKET_URL = "ws://localhost:%d/live";
-  private static final StompSessionHandlerAdapter SESSION_HANDLER = new StompSessionHandlerAdapter() {};
+  private static final StompSessionHandlerAdapter SESSION_HANDLER = new StompSessionHandlerAdapter() {
+  };
 
   @LocalServerPort
   private Integer port;
@@ -120,6 +124,17 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
   protected void performDisconnect(StompSession stompSession) {
     stompSession.disconnect();
     await().until(stompSession::isConnected, equalTo(false));
+  }
+
+  public static String buildLiveEventMessage(EventType eventType, Object eventContent) {
+    try {
+      return new ObjectMapper().writeValueAsString(
+              new LiveEventMessage()
+                  .eventType(eventType)
+                  .eventContent(eventContent));
+    } catch (JsonProcessingException e) {
+      throw new RuntimeJsonMappingException(e.getMessage());
+    }
   }
 
 }

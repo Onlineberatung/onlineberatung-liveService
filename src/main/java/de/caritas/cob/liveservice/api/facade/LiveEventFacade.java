@@ -1,6 +1,7 @@
 package de.caritas.cob.liveservice.api.facade;
 
 import de.caritas.cob.liveservice.api.model.EventType;
+import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.LiveEventSendService;
 import de.caritas.cob.liveservice.websocket.service.WebSocketSessionIdResolver;
 import java.util.List;
@@ -24,19 +25,18 @@ public class LiveEventFacade {
    * Triggers a live event to given registered users.
    *
    * @param userIds the target keycloak user ids
-   * @param eventType the type of the event message
+   * @param liveEventMessage the type of the event message
    */
-  public void triggerLiveEvent(List<String> userIds, String eventType) {
-    EventType validatedType = obtainValidatedEventType(eventType);
+  public void triggerLiveEvent(List<String> userIds, LiveEventMessage liveEventMessage) {
+    validateEventType(liveEventMessage);
     List<String> socketSessionIds = this.sessionIdResolver.resolveUserIds(userIds);
-
-    this.liveEventSendService.sendLiveEventToUsers(socketSessionIds, validatedType);
+    this.liveEventSendService.sendLiveEventToUsers(socketSessionIds, liveEventMessage);
   }
 
-  private EventType obtainValidatedEventType(String eventType) {
+  private void validateEventType(LiveEventMessage liveEventMessage) {
     try {
-      return EventType.fromValue(eventType);
-    } catch (IllegalArgumentException e) {
+      EventType.fromValue(liveEventMessage.getEventType().toString());
+    } catch (IllegalArgumentException | NullPointerException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     }
   }
