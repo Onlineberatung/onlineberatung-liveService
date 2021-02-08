@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.2.0...v1.3.0) (2021-02-08)
+
+
+### Features
+
+* provide generalized api definition for extended object models ([2c4796f](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/2c4796f78b0183a2a9f6e1d7ab5e6c6397667980))
+
 ## [1.2.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.1.0...v1.2.0) (2020-11-23)
 
 
