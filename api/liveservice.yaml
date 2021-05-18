@@ -51,7 +51,9 @@ components:
     EventType:
       type: string
       enum:
+        - "anonymousEnquiryAccepted"
         - "directMessage"
+        - "newAnonymousEnquiry"
         - "videoCallRequest"
         - "videoCallDeny"
 
