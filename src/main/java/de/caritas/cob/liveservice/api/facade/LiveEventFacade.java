@@ -24,12 +24,12 @@ public class LiveEventFacade {
   /**
    * Triggers a live event to given registered users.
    *
-   * @param userIds the target keycloak user ids
    * @param liveEventMessage the type of the event message
    */
-  public void triggerLiveEvent(List<String> userIds, LiveEventMessage liveEventMessage) {
+  public void triggerLiveEvent(LiveEventMessage liveEventMessage) {
     validateEventType(liveEventMessage);
-    List<String> socketSessionIds = this.sessionIdResolver.resolveUserIds(userIds);
+    List<String> socketSessionIds = this.sessionIdResolver
+        .resolveUserIds(liveEventMessage.getUserIds());
     this.liveEventSendService.sendLiveEventToUsers(socketSessionIds, liveEventMessage);
   }
 
