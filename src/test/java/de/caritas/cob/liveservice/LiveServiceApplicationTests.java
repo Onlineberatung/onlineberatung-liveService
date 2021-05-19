@@ -5,6 +5,8 @@ import static de.caritas.cob.liveservice.api.controller.LiveControllerIT.USER_ID
 import static de.caritas.cob.liveservice.api.model.EventType.DIRECTMESSAGE;
 import static de.caritas.cob.liveservice.api.model.EventType.VIDEOCALLDENY;
 import static de.caritas.cob.liveservice.api.model.EventType.VIDEOCALLREQUEST;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -118,8 +120,9 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 1").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, null)).contentType(APPLICATION_JSON))
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
     LiveEventMessage resultMessage = receivedMessages.poll(1, SECONDS);
@@ -137,8 +140,9 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 1").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(VIDEOCALLREQUEST, eventContent))
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(VIDEOCALLREQUEST, singletonList("validated user 1"),
+            eventContent))
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
@@ -159,8 +163,9 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 1").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(VIDEOCALLDENY, null)).contentType(APPLICATION_JSON))
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(VIDEOCALLDENY, singletonList("validated user 1"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
     LiveEventMessage resultMessage = receivedMessages.poll(1, SECONDS);
@@ -183,15 +188,16 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
     performSubscribe(SUBSCRIPTION_ENDPOINT, thirdStompSession, thirdUserMessages);
 
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 1", "validated user 2", "validated user 3")
         .contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, null)).contentType(APPLICATION_JSON))
+        .content(buildLiveEventMessage(DIRECTMESSAGE,
+            asList("validated user 1", "validated user 2", "validated user 3"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 2")
         .contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, null)).contentType(APPLICATION_JSON))
+        .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 2"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
     assertThat(firstUserMessages.poll(1, SECONDS), notNullValue());

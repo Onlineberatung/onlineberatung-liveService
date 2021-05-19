@@ -34,20 +34,21 @@ public class LiveEventFacadeTest {
 
   @Test(expected = ResponseStatusException.class)
   public void triggerLiveEvent_Should_throwBadRequestException_When_liveEventMessageIsNull() {
-    this.liveEventFacade.triggerLiveEvent(emptyList(), null);
+    this.liveEventFacade.triggerLiveEvent(null);
   }
 
   @Test(expected = ResponseStatusException.class)
   public void triggerLiveEvent_Should_throwBadRequestException_When_eventTypeIsNull() {
-    this.liveEventFacade.triggerLiveEvent(emptyList(), new LiveEventMessage().eventType(null));
+    this.liveEventFacade.triggerLiveEvent(new LiveEventMessage().eventType(null));
   }
 
   @Test
   public void triggerLiveEvent_Should_callIdResolverWithIds_When_eventTypeIsValid() {
     List<String> expectedIds = asList("1", "2", "3");
 
-    this.liveEventFacade.triggerLiveEvent(expectedIds,
-        new LiveEventMessage().eventType(DIRECTMESSAGE));
+    this.liveEventFacade.triggerLiveEvent(new LiveEventMessage()
+        .eventType(DIRECTMESSAGE)
+        .userIds(expectedIds));
 
     verify(this.sessionIdResolver, times(1)).resolveUserIds(eq(expectedIds));
   }
@@ -57,11 +58,13 @@ public class LiveEventFacadeTest {
     List<String> expectedIds = asList("1", "2", "3");
     when(this.sessionIdResolver.resolveUserIds(any())).thenReturn(expectedIds);
 
-    this.liveEventFacade
-        .triggerLiveEvent(expectedIds, new LiveEventMessage().eventType(DIRECTMESSAGE));
+    this.liveEventFacade.triggerLiveEvent(new LiveEventMessage()
+        .eventType(DIRECTMESSAGE)
+        .userIds(expectedIds));
 
     verify(this.liveEventSendService, times(1))
-        .sendLiveEventToUsers(eq(expectedIds), eq(new LiveEventMessage().eventType(DIRECTMESSAGE)));
+        .sendLiveEventToUsers(eq(expectedIds),
+            eq(new LiveEventMessage().eventType(DIRECTMESSAGE).userIds(expectedIds)));
   }
 
 }
