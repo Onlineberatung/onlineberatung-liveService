@@ -14,6 +14,7 @@ import de.caritas.cob.liveservice.api.model.EventType;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.KeycloakTokenObserver;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -126,11 +127,13 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     await().until(stompSession::isConnected, equalTo(false));
   }
 
-  public static String buildLiveEventMessage(EventType eventType, Object eventContent) {
+  public static String buildLiveEventMessage(EventType eventType,
+      List<String> userIds, Object eventContent) {
     try {
       return new ObjectMapper().writeValueAsString(
               new LiveEventMessage()
                   .eventType(eventType)
+                  .userIds(userIds)
                   .eventContent(eventContent));
     } catch (JsonProcessingException e) {
       throw new RuntimeJsonMappingException(e.getMessage());

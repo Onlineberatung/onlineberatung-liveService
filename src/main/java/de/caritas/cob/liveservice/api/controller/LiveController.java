@@ -1,18 +1,19 @@
 package de.caritas.cob.liveservice.api.controller;
 
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+
 import de.caritas.cob.liveservice.api.facade.LiveEventFacade;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.generated.api.controller.LiveeventApi;
 import io.swagger.annotations.Api;
-import java.util.List;
 import javax.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Controller for triggering live events.
@@ -27,13 +28,14 @@ public class LiveController implements LiveeventApi {
   /**
    * Trigger entry point for live event sending.
    *
-   * @param userIds the ids of the users to send a live event
    * @param liveEventMessage the {@link LiveEventMessage} of the live event
    */
   @Override
-  public ResponseEntity<Void> sendLiveEvent(@Valid @RequestParam List<String> userIds,
-      @Valid @RequestBody LiveEventMessage liveEventMessage) {
-    this.liveEventFacade.triggerLiveEvent(userIds, liveEventMessage);
+  public ResponseEntity<Void> sendLiveEvent(@Valid @RequestBody LiveEventMessage liveEventMessage) {
+    if (isEmpty(liveEventMessage.getUserIds())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ids must not be empty");
+    }
+    this.liveEventFacade.triggerLiveEvent(liveEventMessage);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
