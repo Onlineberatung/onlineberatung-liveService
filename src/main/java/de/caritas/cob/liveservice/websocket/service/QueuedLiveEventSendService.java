@@ -4,6 +4,8 @@ import de.caritas.cob.liveservice.websocket.model.IdentifiedMessage;
 import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class QueuedLiveEventSendService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(QueuedLiveEventSendService.class);
 
   @Value("${live.event.retry.amount}")
   private Integer maximumRetryAmount;
@@ -32,8 +36,14 @@ public class QueuedLiveEventSendService {
 
   private void sendLiveEventToUser(IdentifiedMessage identifiedMessage) {
     if (identifiedMessage.getRetryAmount() >= this.maximumRetryAmount) {
+      LOGGER.info("Maximum retry amount reached, remove message with id {} from queue",
+          identifiedMessage.getMessageId());
       this.liveEventMessageQueue.removeIdentifiedMessageWithId(identifiedMessage.getMessageId());
     } else {
+      LOGGER.info("Retry to send message with id {} and type {} the {} time",
+          identifiedMessage.getMessageId(),
+          identifiedMessage.getLiveEventMessage().getEventType(),
+          identifiedMessage.getRetryAmount());
       revalidateUsersWebsocketSession(identifiedMessage);
       this.liveEventSendService.sendIdentifiedMessage(identifiedMessage);
       incrementRetryAmount(identifiedMessage);

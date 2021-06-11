@@ -10,8 +10,11 @@ import de.caritas.cob.liveservice.websocket.model.IdentifiedMessage;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -23,6 +26,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class LiveEventSendService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(LiveEventSendService.class);
 
   private final @NonNull SimpMessagingTemplate simpMessagingTemplate;
   private final @NonNull LiveEventMessageQueue liveEventMessageQueue;
@@ -37,6 +42,10 @@ public class LiveEventSendService {
       LiveEventMessage liveEventMessage) {
     liveEventMessage.userIds(null);
     if (isNotEmpty(socketUserSessions)) {
+      LOGGER.info("Send message with type {} to users with ids {}",
+          liveEventMessage.getEventType(),
+          socketUserSessions.stream().map(WebSocketUserSession::getUserId)
+              .collect(Collectors.toList()));
       socketUserSessions.forEach(sessionId -> sendEventMessageToUser(liveEventMessage, sessionId));
     }
   }
