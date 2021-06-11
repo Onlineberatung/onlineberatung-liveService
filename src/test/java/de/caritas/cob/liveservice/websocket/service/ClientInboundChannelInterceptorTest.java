@@ -13,6 +13,8 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import de.caritas.cob.liveservice.websocket.exception.InvalidAccessTokenException;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
+import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +41,9 @@ public class ClientInboundChannelInterceptorTest {
 
   @Mock
   private KeycloakTokenObserver keycloakTokenObserver;
+
+  @Mock
+  private LiveEventMessageQueue liveEventMessageQueue;
 
   @Mock
   private MessageHeaders messageHeaders;
@@ -115,6 +120,15 @@ public class ClientInboundChannelInterceptorTest {
     clientInboundChannelInterceptor.preSend(message, null);
 
     verify(socketUserRegistry, times(1)).removeSession(any());
+  }
+
+  @Test
+  public void preSend_Should_removeMessage_When_accessorCommandIsAck() {
+    when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.ACK);
+
+    clientInboundChannelInterceptor.preSend(message, null);
+
+    verify(liveEventMessageQueue, times(1)).removeIdentifiedMessageWithId(any());
   }
 
 }

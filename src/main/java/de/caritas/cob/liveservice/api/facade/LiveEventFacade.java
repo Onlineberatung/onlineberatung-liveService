@@ -2,6 +2,7 @@ package de.caritas.cob.liveservice.api.facade;
 
 import de.caritas.cob.liveservice.api.model.EventType;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
+import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import de.caritas.cob.liveservice.websocket.service.LiveEventSendService;
 import de.caritas.cob.liveservice.websocket.service.WebSocketSessionIdResolver;
 import java.util.List;
@@ -28,8 +29,8 @@ public class LiveEventFacade {
    */
   public void triggerLiveEvent(LiveEventMessage liveEventMessage) {
     validateEventType(liveEventMessage);
-    List<String> socketSessionIds = this.sessionIdResolver
-        .resolveUserIds(liveEventMessage.getUserIds());
+    List<WebSocketUserSession> socketSessionIds = this.sessionIdResolver
+        .resolveUserSessions(liveEventMessage.getUserIds());
     this.liveEventSendService.sendLiveEventToUsers(socketSessionIds, liveEventMessage);
   }
 

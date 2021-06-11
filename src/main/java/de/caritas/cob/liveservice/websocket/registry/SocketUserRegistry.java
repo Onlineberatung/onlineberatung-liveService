@@ -1,11 +1,12 @@
-package de.caritas.cob.liveservice.websocket.service;
+package de.caritas.cob.liveservice.websocket.registry;
 
 import static java.util.Objects.nonNull;
 
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SocketUserRegistry {
 
-  private static final List<WebSocketUserSession> SUBSCRIBED_USERS = new CopyOnWriteArrayList<>();
+  private static final Set<WebSocketUserSession> SUBSCRIBED_USERS = new CopyOnWriteArraySet<>();
 
   /**
    * Adds the given {@link WebSocketUserSession} to the registry.

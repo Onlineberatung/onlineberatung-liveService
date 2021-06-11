@@ -6,6 +6,8 @@ import static org.springframework.messaging.support.MessageHeaderAccessor.getAcc
 
 import de.caritas.cob.liveservice.websocket.exception.InvalidAccessTokenException;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
+import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.common.VerificationException;
@@ -27,9 +29,11 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
   private static final String SUBSCRIPTION_ID = "simpSubscriptionId";
   private static final String SESSION_ID = "simpSessionId";
   private static final String ACCESS_TOKEN = "accessToken";
-  
+  private static final String MESSAGE_ID = "message-id";
+
   private final @NonNull SocketUserRegistry socketUserRegistry;
   private final @NonNull KeycloakTokenObserver keyCloakTokenObserver;
+  private final @NonNull LiveEventMessageQueue liveEventMessageQueue;
 
   /**
    * Method invocation everytime a socket message is send to the server and must be handled.
@@ -41,7 +45,7 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
     StompHeaderAccessor accessor = getAccessor(message, StompHeaderAccessor.class);
-    String socketSessionId = observerHeaderField(message, SESSION_ID);
+    String socketSessionId = extractHeaderField(message, SESSION_ID);
 
     if (isNull(accessor)) {
       return message;
@@ -63,10 +67,13 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
     } else if (StompCommand.DISCONNECT.equals(accessorCommand) || StompCommand.ERROR.equals(
         accessorCommand)) {
       this.socketUserRegistry.removeSession(socketSessionId);
+    } else if (StompCommand.ACK.equals(accessorCommand)) {
+      this.liveEventMessageQueue.removeIdentifiedMessageWithId(accessor.getFirstNativeHeader(
+          MESSAGE_ID));
     }
   }
 
-  private String observerHeaderField(Message<?> message, String headerName) {
+  private String extractHeaderField(Message<?> message, String headerName) {
     MessageHeaders headers = message.getHeaders();
     return requireNonNull(headers.get(headerName)).toString();
   }
@@ -76,7 +83,7 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
     String token = accessor.getFirstNativeHeader(ACCESS_TOKEN);
     try {
       String userId = this.keyCloakTokenObserver.observeUserId(token);
-      WebSocketUserSession webSocketUserSession = WebSocketUserSession.builder()
+      var webSocketUserSession = WebSocketUserSession.builder()
           .userId(userId)
           .websocketSessionId(socketSessionId)
           .build();
@@ -88,7 +95,7 @@ public class ClientInboundChannelInterceptor implements ChannelInterceptor {
   }
 
   private void subscribe(Message<?> message, String socketSessionId) {
-    String subscriptionId = observerHeaderField(message, SUBSCRIPTION_ID);
+    String subscriptionId = extractHeaderField(message, SUBSCRIPTION_ID);
     this.socketUserRegistry.findUserBySessionId(socketSessionId)
         .setSubscriptionId(subscriptionId);
   }

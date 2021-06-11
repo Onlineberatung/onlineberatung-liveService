@@ -1,16 +1,20 @@
 package de.caritas.cob.liveservice.websocket.service;
 
 import static de.caritas.cob.liveservice.websocket.model.Subscription.EVENTS;
+import static java.util.UUID.randomUUID;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import de.caritas.cob.liveservice.api.model.EventType;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
+import de.caritas.cob.liveservice.websocket.model.IdentifiedMessage;
+import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,26 +25,45 @@ import org.springframework.stereotype.Service;
 public class LiveEventSendService {
 
   private final @NonNull SimpMessagingTemplate simpMessagingTemplate;
+  private final @NonNull LiveEventMessageQueue liveEventMessageQueue;
 
   /**
    * Sends a live event with {@link EventType} to given socket sessions.
    *
-   * @param socketSessionIds the session ids to send the event
-   * @param liveEventMessage the live event message object
+   * @param socketUserSessions the session ids to send the event
+   * @param liveEventMessage   the live event message object
    */
-  public void sendLiveEventToUsers(List<String> socketSessionIds, LiveEventMessage liveEventMessage) {
-    if (isNotEmpty(socketSessionIds)) {
-      socketSessionIds.forEach(sessionId -> sendEventMessageToUser(liveEventMessage, sessionId));
+  public void sendLiveEventToUsers(List<WebSocketUserSession> socketUserSessions,
+      LiveEventMessage liveEventMessage) {
+    liveEventMessage.userIds(null);
+    if (isNotEmpty(socketUserSessions)) {
+      socketUserSessions.forEach(sessionId -> sendEventMessageToUser(liveEventMessage, sessionId));
     }
   }
 
-  private void sendEventMessageToUser(LiveEventMessage liveEventMessage, String sessionId) {
-    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor
-        .create(SimpMessageType.MESSAGE);
-    headerAccessor.setSessionId(sessionId);
+  private void sendEventMessageToUser(LiveEventMessage liveEventMessage,
+      WebSocketUserSession webSocketUserSession) {
+    var messageId = randomUUID().toString();
+    var identifiedMessage = IdentifiedMessage.builder()
+        .messageId(messageId)
+        .liveEventMessage(liveEventMessage)
+        .websocketUserSession(webSocketUserSession)
+        .retryAmount(0)
+        .build();
+    this.liveEventMessageQueue.addIdentifiedMessage(identifiedMessage);
+
+    sendIdentifiedMessage(identifiedMessage);
+  }
+
+  public void sendIdentifiedMessage(IdentifiedMessage identifiedMessage) {
+    var headerAccessor = StompHeaderAccessor.create(StompCommand.MESSAGE);
+    headerAccessor
+        .setSessionId(identifiedMessage.getWebsocketUserSession().getWebsocketSessionId());
     headerAccessor.setLeaveMutable(true);
+    headerAccessor.setMessageId(identifiedMessage.getMessageId());
     this.simpMessagingTemplate
-        .convertAndSendToUser(sessionId, EVENTS.getSubscriptionEndpoint(), liveEventMessage,
+        .convertAndSendToUser(identifiedMessage.getWebsocketUserSession().getWebsocketSessionId(),
+            EVENTS.getSubscriptionEndpoint(), identifiedMessage.getLiveEventMessage(),
             headerAccessor.getMessageHeaders());
   }
 
