@@ -148,7 +148,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(1, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(4, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
   }
@@ -245,7 +245,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    var resultMessage = receivedMessages.poll(1, SECONDS);
+    var resultMessage = receivedMessages.poll(4, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     for (int i = 0; i < 5; i++) {
