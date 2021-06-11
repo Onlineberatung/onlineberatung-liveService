@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
+import de.caritas.cob.liveservice.api.model.EventType;
+import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.model.IdentifiedMessage;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
@@ -73,6 +75,7 @@ class QueuedLiveEventSendServiceTest {
         .retryAmount(1)
         .messageId("messageid")
         .websocketUserSession(socketSession)
+        .liveEventMessage(new LiveEventMessage().eventType(EventType.DIRECTMESSAGE))
         .build();
     when(this.liveEventMessageQueue.getCurrentOpenMessages()).thenReturn(Set.of(message));
 
