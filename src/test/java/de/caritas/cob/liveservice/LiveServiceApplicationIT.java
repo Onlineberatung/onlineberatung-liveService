@@ -169,7 +169,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(1, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(4, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLREQUEST));
     Object resultContent = new ObjectMapper()
@@ -191,7 +191,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(1, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(4, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLDENY));
   }
@@ -223,10 +223,10 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    assertThat(firstUserMessages.poll(1, SECONDS), notNullValue());
-    assertThat(secondUserMessages.poll(1, SECONDS), notNullValue());
-    assertThat(secondUserMessages.poll(1, SECONDS), notNullValue());
-    assertThat(thirdUserMessages.poll(1, SECONDS), notNullValue());
+    assertThat(firstUserMessages.poll(4, SECONDS), notNullValue());
+    assertThat(secondUserMessages.poll(4, SECONDS), notNullValue());
+    assertThat(secondUserMessages.poll(4, SECONDS), notNullValue());
+    assertThat(thirdUserMessages.poll(4, SECONDS), notNullValue());
     assertThat(firstUserMessages, hasSize(0));
     assertThat(secondUserMessages, hasSize(0));
     assertThat(thirdUserMessages, hasSize(0));
