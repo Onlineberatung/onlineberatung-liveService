@@ -42,6 +42,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
   private static final String SUBSCRIPTION_ENDPOINT = "/user/events";
+  private static final int MESSAGE_TIMEOUT = 7;
 
   @Autowired
   private SocketUserRegistry socketUserRegistry;
@@ -115,7 +116,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(1));
     WebSocketUserSession registeredUser = this.socketUserRegistry.retrieveAllUsers().get(0);
     await()
-        .atMost(2, SECONDS)
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
         .until(registeredUser::getSubscriptionId, notNullValue());
 
     assertThat(registeredUser, notNullValue());
@@ -148,7 +149,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(4, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
   }
@@ -169,7 +170,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(4, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLREQUEST));
     Object resultContent = new ObjectMapper()
@@ -191,7 +192,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(4, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLDENY));
   }
@@ -223,10 +224,10 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    assertThat(firstUserMessages.poll(4, SECONDS), notNullValue());
-    assertThat(secondUserMessages.poll(4, SECONDS), notNullValue());
-    assertThat(secondUserMessages.poll(4, SECONDS), notNullValue());
-    assertThat(thirdUserMessages.poll(4, SECONDS), notNullValue());
+    assertThat(firstUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
+    assertThat(secondUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
+    assertThat(secondUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
+    assertThat(thirdUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
     assertThat(firstUserMessages, hasSize(0));
     assertThat(secondUserMessages, hasSize(0));
     assertThat(thirdUserMessages, hasSize(0));
@@ -245,16 +246,16 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    var resultMessage = receivedMessages.poll(4, SECONDS);
+    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     for (int i = 0; i < 5; i++) {
-      var furtherMessage = receivedMessages.poll(7, SECONDS);
+      var furtherMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
       assertThat(furtherMessage, notNullValue());
       assertThat(furtherMessage.getEventType(), is(DIRECTMESSAGE));
     }
     await()
-        .atMost(7, SECONDS)
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
         .until(this.liveEventMessageQueue::getCurrentOpenMessages, hasSize(0));
   }
 
@@ -276,7 +277,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     var newStompSession = performConnect(FIRST_VALID_USER);
     performSubscribe(SUBSCRIPTION_ENDPOINT, newStompSession, receivedMessages);
 
-    var resultMessage = receivedMessages.poll(7, SECONDS);
+    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
   }
