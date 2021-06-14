@@ -4,7 +4,6 @@ import de.caritas.cob.liveservice.api.model.EventType;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.LiveEventSendService;
 import de.caritas.cob.liveservice.websocket.service.WebSocketSessionIdResolver;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,8 +27,8 @@ public class LiveEventFacade {
    */
   public void triggerLiveEvent(LiveEventMessage liveEventMessage) {
     validateEventType(liveEventMessage);
-    List<String> socketSessionIds = this.sessionIdResolver
-        .resolveUserIds(liveEventMessage.getUserIds());
+    var socketSessionIds = this.sessionIdResolver
+        .resolveUserSessions(liveEventMessage.getUserIds());
     this.liveEventSendService.sendLiveEventToUsers(socketSessionIds, liveEventMessage);
   }
 
