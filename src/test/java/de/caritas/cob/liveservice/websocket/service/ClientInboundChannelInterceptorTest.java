@@ -11,19 +11,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import de.caritas.cob.liveservice.websocket.exception.InvalidAccessTokenException;
-import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
-import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
-import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
+import de.caritas.cob.liveservice.websocket.stomphandler.StompHandlerRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.keycloak.common.VerificationException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -37,13 +34,7 @@ public class ClientInboundChannelInterceptorTest {
   private ClientInboundChannelInterceptor clientInboundChannelInterceptor;
 
   @Mock
-  private SocketUserRegistry socketUserRegistry;
-
-  @Mock
-  private KeycloakTokenObserver keycloakTokenObserver;
-
-  @Mock
-  private LiveEventMessageQueue liveEventMessageQueue;
+  private StompHandlerRegistry stompHandlerRegistry;
 
   @Mock
   private MessageHeaders messageHeaders;
@@ -67,68 +58,56 @@ public class ClientInboundChannelInterceptorTest {
   public void preSend_Should_returnUntouchedMessage_When_accessorIsNull() {
     when(MessageHeaderAccessor.getAccessor(any(Message.class), eq(StompHeaderAccessor.class)))
         .thenReturn(null);
-    Message<?> resultMessage = clientInboundChannelInterceptor.preSend(message, null);
+
+    var resultMessage = clientInboundChannelInterceptor
+        .preSend(message, mock(MessageChannel.class));
 
     assertThat(resultMessage, is(message));
   }
 
   @Test
-  public void preSend_Should_verifyKeycloakToken_When_accessorCommandIsConnect()
-      throws VerificationException {
+  public void preSend_Should_callRegistryWithExpectedCommand_When_accessorCommandIsConnect() {
     when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.CONNECT);
 
-    clientInboundChannelInterceptor.preSend(message, null);
+    clientInboundChannelInterceptor.preSend(message, mock(MessageChannel.class));
 
-    verify(keycloakTokenObserver, times(1)).observeUserId(any());
-    verify(socketUserRegistry, times(1)).addUser(any());
-  }
-
-  @Test(expected = InvalidAccessTokenException.class)
-  public void preSend_Should_throwInvalidAccessTokenException_When_tokenIsInvalid()
-      throws VerificationException {
-    when(keycloakTokenObserver.observeUserId(any())).thenThrow(new VerificationException(""));
-    when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.CONNECT);
-
-    clientInboundChannelInterceptor.preSend(message, null);
+    verify(stompHandlerRegistry, times(1)).retrieveStompHandler(StompCommand.CONNECT);
   }
 
   @Test
-  public void preSend_Should_subscribeUser_When_accessorCommandIsSubscribe() {
+  public void preSend_Should_callRegistryWithExpectedCommand_When_accessorCommandIsSubscribe() {
     when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.SUBSCRIBE);
-    WebSocketUserSession socketUserSession = mock(WebSocketUserSession.class);
-    when(socketUserRegistry.findUserBySessionId(any())).thenReturn(socketUserSession);
 
-    clientInboundChannelInterceptor.preSend(message, null);
+    clientInboundChannelInterceptor.preSend(message, mock(MessageChannel.class));
 
-    verify(socketUserRegistry, times(1)).findUserBySessionId(any());
-    verify(socketUserSession, times(1)).setSubscriptionId(any());
+    verify(stompHandlerRegistry, times(1)).retrieveStompHandler(StompCommand.SUBSCRIBE);
   }
 
   @Test
-  public void preSend_Should_removeUser_When_accessorCommandIsDisconnect() {
+  public void preSend_Should_callRegistryWithExpectedCommand_When_accessorCommandIsDisconnect() {
     when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.DISCONNECT);
 
-    clientInboundChannelInterceptor.preSend(message, null);
+    clientInboundChannelInterceptor.preSend(message, mock(MessageChannel.class));
 
-    verify(socketUserRegistry, times(1)).removeSession(any());
+    verify(stompHandlerRegistry, times(1)).retrieveStompHandler(StompCommand.DISCONNECT);
   }
 
   @Test
-  public void preSend_Should_removeUser_When_accessorCommandIsError() {
+  public void preSend_Should_callRegistryWithExpectedCommand_When_accessorCommandIsError() {
     when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.ERROR);
 
-    clientInboundChannelInterceptor.preSend(message, null);
+    clientInboundChannelInterceptor.preSend(message, mock(MessageChannel.class));
 
-    verify(socketUserRegistry, times(1)).removeSession(any());
+    verify(stompHandlerRegistry, times(1)).retrieveStompHandler(StompCommand.ERROR);
   }
 
   @Test
-  public void preSend_Should_removeMessage_When_accessorCommandIsAck() {
+  public void preSend_Should_callRegistryWithExpectedCommand_When_accessorCommandIsAck() {
     when(stompHeaderAccessor.getCommand()).thenReturn(StompCommand.ACK);
 
-    clientInboundChannelInterceptor.preSend(message, null);
+    clientInboundChannelInterceptor.preSend(message, mock(MessageChannel.class));
 
-    verify(liveEventMessageQueue, times(1)).removeIdentifiedMessageWithId(any());
+    verify(stompHandlerRegistry, times(1)).retrieveStompHandler(StompCommand.ACK);
   }
 
 }
