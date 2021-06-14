@@ -35,7 +35,7 @@ public class LiveEventMessageQueue {
    * @param messageId the id of the {@link IdentifiedMessage}
    */
   public synchronized void removeIdentifiedMessageWithId(String messageId) {
-    LOGGER.info("Remove message with id {} to queue", messageId);
+    LOGGER.info("Remove message with id {} from queue", messageId);
     QUEUED_LIVE_MESSAGES.removeIf(message -> message.getMessageId().equals(messageId));
   }
 

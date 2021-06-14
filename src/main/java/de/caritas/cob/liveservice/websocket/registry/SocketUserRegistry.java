@@ -37,7 +37,7 @@ public class SocketUserRegistry {
    */
   public synchronized void removeSession(String sessionId) {
     WebSocketUserSession sessionToRemove = findUserBySessionId(sessionId);
-    LOGGER.info("Remove socket session for with id {}", sessionId);
+    LOGGER.info("Remove socket session with id {}", sessionId);
     if (nonNull(sessionToRemove)) {
       SUBSCRIBED_USERS.remove(sessionToRemove);
     }
