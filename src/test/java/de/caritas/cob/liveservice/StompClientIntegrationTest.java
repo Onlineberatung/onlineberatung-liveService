@@ -102,7 +102,7 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     ListenableFuture<StompSession> connect = socketStompClient.connect(
         String.format(SOCKET_URL, port), new WebSocketHttpHeaders(), connectHeaders,
         SESSION_HANDLER);
-    return connect.get(1, TimeUnit.SECONDS);
+    return connect.get(3, TimeUnit.SECONDS);
   }
 
   protected Subscription performSubscribe(String endpoint, StompSession stompSession) {

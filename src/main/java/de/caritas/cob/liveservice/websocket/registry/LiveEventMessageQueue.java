@@ -1,12 +1,18 @@
 package de.caritas.cob.liveservice.websocket.registry;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
+
 import de.caritas.cob.liveservice.websocket.model.IdentifiedMessage;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,6 +24,9 @@ public class LiveEventMessageQueue {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LiveEventMessageQueue.class);
   private static final Set<IdentifiedMessage> QUEUED_LIVE_MESSAGES = new CopyOnWriteArraySet<>();
+
+  @Value("${live.event.minimum.seconds.before.retry}")
+  private Integer minimumSecondsBeforeRetry;
 
   /**
    * Adds the given {@link IdentifiedMessage} to the registry.
@@ -45,7 +54,15 @@ public class LiveEventMessageQueue {
    * @return all current {@link IdentifiedMessage}
    */
   public synchronized Collection<IdentifiedMessage> getCurrentOpenMessages() {
-    return new LinkedList<>(QUEUED_LIVE_MESSAGES);
+    return new LinkedList<>(QUEUED_LIVE_MESSAGES).stream()
+        .filter(this::minimumSecondsBeforeRetryReached)
+        .collect(Collectors.toList());
+  }
+
+  private boolean minimumSecondsBeforeRetryReached(IdentifiedMessage identifiedMessage) {
+    return identifiedMessage.getCreatedDate()
+        .plus(this.minimumSecondsBeforeRetry, SECONDS)
+        .isBefore(LocalDateTime.now(ZoneOffset.UTC));
   }
 
 }

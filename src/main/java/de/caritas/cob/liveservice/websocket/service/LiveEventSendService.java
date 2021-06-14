@@ -9,6 +9,8 @@ import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.model.IdentifiedMessage;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -57,7 +59,8 @@ public class LiveEventSendService {
         .messageId(messageId)
         .liveEventMessage(liveEventMessage)
         .websocketUserSession(webSocketUserSession)
-        .retryAmount(0)
+        .retryAmount(1)
+        .createdDate(LocalDateTime.now(ZoneOffset.UTC))
         .build();
     this.liveEventMessageQueue.addIdentifiedMessage(identifiedMessage);
 

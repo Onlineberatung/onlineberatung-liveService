@@ -1,6 +1,7 @@
 package de.caritas.cob.liveservice.websocket.model;
 
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,5 +13,6 @@ public class IdentifiedMessage {
   private WebSocketUserSession websocketUserSession;
   private LiveEventMessage liveEventMessage;
   private Integer retryAmount;
+  private LocalDateTime createdDate;
 
 }

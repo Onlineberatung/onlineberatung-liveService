@@ -27,7 +27,7 @@ public class QueuedLiveEventSendService {
   private final @NonNull WebSocketSessionIdResolver webSocketSessionIdResolver;
 
   /**
-   * Retries to send all queued live event messages which were not acknowleged by the stomp client.
+   * Retries to send all queued live event messages which were not acknowledged by the stomp client.
    */
   public void sendQueuedLiveEvents() {
     this.liveEventMessageQueue.getCurrentOpenMessages()
@@ -35,7 +35,7 @@ public class QueuedLiveEventSendService {
   }
 
   private void sendLiveEventToUser(IdentifiedMessage identifiedMessage) {
-    if (identifiedMessage.getRetryAmount() >= this.maximumRetryAmount) {
+    if (identifiedMessage.getRetryAmount() > this.maximumRetryAmount) {
       LOGGER.info("Maximum retry amount reached, remove message with id {} from queue",
           identifiedMessage.getMessageId());
       this.liveEventMessageQueue.removeIdentifiedMessageWithId(identifiedMessage.getMessageId());
