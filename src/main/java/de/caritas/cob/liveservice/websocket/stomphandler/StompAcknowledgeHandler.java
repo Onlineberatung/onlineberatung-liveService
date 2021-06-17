@@ -5,6 +5,8 @@ import static java.util.Objects.nonNull;
 import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StompAcknowledgeHandler implements StompHandler {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(StompAcknowledgeHandler.class);
   private static final String MESSAGE_ID = "message-id";
 
   private final @NonNull LiveEventMessageQueue liveEventMessageQueue;
@@ -28,6 +31,7 @@ public class StompAcknowledgeHandler implements StompHandler {
   @Override
   public void handle(Message<?> inboundMessage) {
     if (nonNull(inboundMessage)) {
+      LOGGER.info("Inbound Message = {}", inboundMessage);
       var messageId = extractFirstNativeHeader(inboundMessage, MESSAGE_ID);
       this.liveEventMessageQueue.removeIdentifiedMessageWithId(messageId);
     }
