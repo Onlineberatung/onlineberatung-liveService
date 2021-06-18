@@ -4,7 +4,6 @@ import de.caritas.cob.liveservice.api.model.EventType;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.LiveEventSendService;
 import de.caritas.cob.liveservice.websocket.service.WebSocketSessionIdResolver;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,12 +23,12 @@ public class LiveEventFacade {
   /**
    * Triggers a live event to given registered users.
    *
-   * @param userIds the target keycloak user ids
    * @param liveEventMessage the type of the event message
    */
-  public void triggerLiveEvent(List<String> userIds, LiveEventMessage liveEventMessage) {
+  public void triggerLiveEvent(LiveEventMessage liveEventMessage) {
     validateEventType(liveEventMessage);
-    List<String> socketSessionIds = this.sessionIdResolver.resolveUserIds(userIds);
+    var socketSessionIds = this.sessionIdResolver
+        .resolveUserSessions(liveEventMessage.getUserIds());
     this.liveEventSendService.sendLiveEventToUsers(socketSessionIds, liveEventMessage);
   }
 

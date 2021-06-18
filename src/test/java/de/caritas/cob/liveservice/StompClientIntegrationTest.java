@@ -14,6 +14,7 @@ import de.caritas.cob.liveservice.api.model.EventType;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.KeycloakTokenObserver;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +37,7 @@ import org.springframework.messaging.simp.stomp.StompSession.Subscription;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -48,6 +50,7 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = StompClientIntegrationTest.TestConfig.class)
+@TestPropertySource(properties = "spring.profiles.active=testing")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringContextTests {
 
@@ -99,7 +102,7 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     ListenableFuture<StompSession> connect = socketStompClient.connect(
         String.format(SOCKET_URL, port), new WebSocketHttpHeaders(), connectHeaders,
         SESSION_HANDLER);
-    return connect.get(1, TimeUnit.SECONDS);
+    return connect.get(3, TimeUnit.SECONDS);
   }
 
   protected Subscription performSubscribe(String endpoint, StompSession stompSession) {
@@ -126,11 +129,13 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     await().until(stompSession::isConnected, equalTo(false));
   }
 
-  public static String buildLiveEventMessage(EventType eventType, Object eventContent) {
+  public static String buildLiveEventMessage(EventType eventType,
+      List<String> userIds, Object eventContent) {
     try {
       return new ObjectMapper().writeValueAsString(
               new LiveEventMessage()
                   .eventType(eventType)
+                  .userIds(userIds)
                   .eventContent(eventContent));
     } catch (JsonProcessingException e) {
       throw new RuntimeJsonMappingException(e.getMessage());

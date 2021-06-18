@@ -1,10 +1,11 @@
 package de.caritas.cob.liveservice;
 
 import static de.caritas.cob.liveservice.api.controller.LiveControllerIT.LIVEEVENT_SEND;
-import static de.caritas.cob.liveservice.api.controller.LiveControllerIT.USER_IDS_PARAM;
 import static de.caritas.cob.liveservice.api.model.EventType.DIRECTMESSAGE;
 import static de.caritas.cob.liveservice.api.model.EventType.VIDEOCALLDENY;
 import static de.caritas.cob.liveservice.api.model.EventType.VIDEOCALLREQUEST;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,11 +23,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.api.model.VideoCallRequestDTO;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
-import de.caritas.cob.liveservice.websocket.service.SocketUserRegistry;
+import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
+import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import org.jeasy.random.EasyRandom;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,15 +39,37 @@ import org.springframework.messaging.simp.stomp.StompSession.Subscription;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc(addFilters = false)
-class LiveServiceApplicationTests extends StompClientIntegrationTest {
+class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
   private static final String SUBSCRIPTION_ENDPOINT = "/user/events";
+  private static final int MESSAGE_TIMEOUT = 7;
 
   @Autowired
   private SocketUserRegistry socketUserRegistry;
 
   @Autowired
+  private LiveEventMessageQueue liveEventMessageQueue;
+
+  @Autowired
   private MockMvc mockMvc;
+
+  @BeforeEach
+  void setup() {
+    socketUserRegistry.retrieveAllUsers()
+        .forEach(
+            socketUser -> socketUserRegistry.removeSession(socketUser.getWebsocketSessionId()));
+    liveEventMessageQueue.getCurrentOpenMessages().forEach(queuedMessage -> liveEventMessageQueue
+        .removeIdentifiedMessageWithId(queuedMessage.getMessageId()));
+  }
+
+  @AfterEach
+  void cleanup() {
+    socketUserRegistry.retrieveAllUsers()
+        .forEach(
+            socketUser -> socketUserRegistry.removeSession(socketUser.getWebsocketSessionId()));
+    liveEventMessageQueue.getCurrentOpenMessages().forEach(queuedMessage -> liveEventMessageQueue
+        .removeIdentifiedMessageWithId(queuedMessage.getMessageId()));
+  }
 
   @Test
   void connectToSocket_Should_connect_When_accessTokenIsValid() throws Exception {
@@ -90,7 +116,7 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
     assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(1));
     WebSocketUserSession registeredUser = this.socketUserRegistry.retrieveAllUsers().get(0);
     await()
-        .atMost(2, SECONDS)
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
         .until(registeredUser::getSubscriptionId, notNullValue());
 
     assertThat(registeredUser, notNullValue());
@@ -118,11 +144,12 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 1").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, null)).contentType(APPLICATION_JSON))
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(1, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
   }
@@ -137,12 +164,13 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 1").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(VIDEOCALLREQUEST, eventContent))
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(VIDEOCALLREQUEST, singletonList("validated user 1"),
+            eventContent))
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(1, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLREQUEST));
     Object resultContent = new ObjectMapper()
@@ -159,11 +187,12 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 1").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(VIDEOCALLDENY, null)).contentType(APPLICATION_JSON))
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(VIDEOCALLDENY, singletonList("validated user 1"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(1, SECONDS);
+    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLDENY));
   }
@@ -183,24 +212,74 @@ class LiveServiceApplicationTests extends StompClientIntegrationTest {
     performSubscribe(SUBSCRIPTION_ENDPOINT, thirdStompSession, thirdUserMessages);
 
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 1", "validated user 2", "validated user 3")
         .contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, null)).contentType(APPLICATION_JSON))
+        .content(buildLiveEventMessage(DIRECTMESSAGE,
+            asList("validated user 1", "validated user 2", "validated user 3"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "validated user 2")
         .contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, null)).contentType(APPLICATION_JSON))
+        .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 2"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    assertThat(firstUserMessages.poll(1, SECONDS), notNullValue());
-    assertThat(secondUserMessages.poll(1, SECONDS), notNullValue());
-    assertThat(secondUserMessages.poll(1, SECONDS), notNullValue());
-    assertThat(thirdUserMessages.poll(1, SECONDS), notNullValue());
+    assertThat(firstUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
+    assertThat(secondUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
+    assertThat(secondUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
+    assertThat(thirdUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
     assertThat(firstUserMessages, hasSize(0));
     assertThat(secondUserMessages, hasSize(0));
     assertThat(thirdUserMessages, hasSize(0));
+  }
+
+  @Test
+  void sendLiveEvent_Should_sendDirectMessageMultipleTimesToUserAndFinalyRemove_When_clientDoesNotAcknowledge()
+      throws Exception {
+    var stompSession = performConnect(FIRST_VALID_USER);
+    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
+
+    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
+    mockMvc.perform(post(LIVEEVENT_SEND)
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
+        .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    assertThat(resultMessage, notNullValue());
+    assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
+    for (int i = 0; i < 5; i++) {
+      var furtherMessage = receivedMessages.poll(20, SECONDS);
+      assertThat(furtherMessage, notNullValue());
+      assertThat(furtherMessage.getEventType(), is(DIRECTMESSAGE));
+    }
+    await()
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .until(this.liveEventMessageQueue::getCurrentOpenMessages, hasSize(0));
+  }
+
+  @Test
+  void sendLiveEvent_Should_sendDirectMessageToUserViaQueue_When_clientReconnectsUser()
+      throws Exception {
+    var stompSession = performConnect(FIRST_VALID_USER);
+    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
+
+    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
+    mockMvc.perform(post(LIVEEVENT_SEND)
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
+        .contentType(APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    receivedMessages.clear();
+    performDisconnect(stompSession);
+    var newStompSession = performConnect(FIRST_VALID_USER);
+    performSubscribe(SUBSCRIPTION_ENDPOINT, newStompSession, receivedMessages);
+
+    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    assertThat(resultMessage, notNullValue());
+    assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
   }
 
 }
