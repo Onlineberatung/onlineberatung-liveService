@@ -42,7 +42,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
   private static final String SUBSCRIPTION_ENDPOINT = "/user/events";
-  private static final int MESSAGE_TIMEOUT = 7;
+  private static final int MESSAGE_TIMEOUT = 10;
 
   @Autowired
   private SocketUserRegistry socketUserRegistry;
@@ -250,7 +250,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     for (int i = 0; i < 5; i++) {
-      var furtherMessage = receivedMessages.poll(100, SECONDS);
+      var furtherMessage = receivedMessages.poll(MESSAGE_TIMEOUT * 10, SECONDS);
       assertThat(furtherMessage, notNullValue());
       assertThat(furtherMessage.getEventType(), is(DIRECTMESSAGE));
     }
