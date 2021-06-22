@@ -250,7 +250,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     for (int i = 0; i < 5; i++) {
-      var furtherMessage = receivedMessages.poll(60, SECONDS);
+      var furtherMessage = receivedMessages.poll(100, SECONDS);
       assertThat(furtherMessage, notNullValue());
       assertThat(furtherMessage.getEventType(), is(DIRECTMESSAGE));
     }
