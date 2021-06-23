@@ -37,7 +37,6 @@ import org.springframework.messaging.simp.stomp.StompSession.Subscription;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -50,11 +49,12 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = StompClientIntegrationTest.TestConfig.class)
-@TestPropertySource(properties = "spring.profiles.active=testing")
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringContextTests {
 
-  static final String FIRST_VALID_USER = "firstValidUser";
+  protected static final String SUBSCRIPTION_ENDPOINT = "/user/events";
+  protected static final int MESSAGE_TIMEOUT = 10;
+  protected static final String FIRST_VALID_USER = "firstValidUser";
   static final String SECOND_VALID_USER = "secondValidUser";
   static final String THIRD_VALID_USER = "thirdValidUser";
 

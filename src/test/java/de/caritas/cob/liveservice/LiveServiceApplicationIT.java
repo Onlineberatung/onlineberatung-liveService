@@ -36,13 +36,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSession.Subscription;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc(addFilters = false)
+@TestPropertySource(properties = "spring.profiles.active=testing")
 class LiveServiceApplicationIT extends StompClientIntegrationTest {
-
-  private static final String SUBSCRIPTION_ENDPOINT = "/user/events";
-  private static final int MESSAGE_TIMEOUT = 10;
 
   @Autowired
   private SocketUserRegistry socketUserRegistry;
@@ -231,55 +230,6 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(firstUserMessages, hasSize(0));
     assertThat(secondUserMessages, hasSize(0));
     assertThat(thirdUserMessages, hasSize(0));
-  }
-
-  @Test
-  void sendLiveEvent_Should_sendDirectMessageMultipleTimesToUserAndFinalyRemove_When_clientDoesNotAcknowledge()
-      throws Exception {
-    var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
-
-    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
-    mockMvc.perform(post(LIVEEVENT_SEND)
-        .contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
-        .contentType(APPLICATION_JSON))
-        .andExpect(status().isOk());
-
-    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
-    assertThat(resultMessage, notNullValue());
-    assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
-    for (int i = 0; i < 5; i++) {
-      var furtherMessage = receivedMessages.poll(MESSAGE_TIMEOUT * 10, SECONDS);
-      assertThat(furtherMessage, notNullValue());
-      assertThat(furtherMessage.getEventType(), is(DIRECTMESSAGE));
-    }
-    await()
-        .atMost(MESSAGE_TIMEOUT, SECONDS)
-        .until(this.liveEventMessageQueue::getCurrentOpenMessages, hasSize(0));
-  }
-
-  @Test
-  void sendLiveEvent_Should_sendDirectMessageToUserViaQueue_When_clientReconnectsUser()
-      throws Exception {
-    var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
-
-    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
-    mockMvc.perform(post(LIVEEVENT_SEND)
-        .contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
-        .contentType(APPLICATION_JSON))
-        .andExpect(status().isOk());
-
-    receivedMessages.clear();
-    performDisconnect(stompSession);
-    var newStompSession = performConnect(FIRST_VALID_USER);
-    performSubscribe(SUBSCRIPTION_ENDPOINT, newStompSession, receivedMessages);
-
-    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
-    assertThat(resultMessage, notNullValue());
-    assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
   }
 
 }
