@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.keycloak.common.VerificationException;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -80,6 +81,11 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
       when(observer.observeUserId(null)).thenThrow(new VerificationException("invalid"));
       return observer;
     }
+  }
+
+  @BeforeEach
+  void cleanMemory() {
+    System.gc();
   }
 
   protected StompSession performConnect(String accessToken)
