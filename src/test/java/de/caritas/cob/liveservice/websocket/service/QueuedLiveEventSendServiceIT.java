@@ -50,11 +50,11 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
     await()
         .atMost(MESSAGE_TIMEOUT * 10, SECONDS)
         .until(receivedMessages::size, is(4));
-    var resultMessage = receivedMessages.iterator().next();
+    var resultMessage = receivedMessages.get(0);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
-    for (int i = 0; i < 5; i++) {
-      var furtherMessage = receivedMessages.iterator().next();
+    for (int i = 1; i < 4; i++) {
+      var furtherMessage = receivedMessages.get(i);
       assertThat(furtherMessage, notNullValue());
       assertThat(furtherMessage.getEventType(), is(DIRECTMESSAGE));
     }

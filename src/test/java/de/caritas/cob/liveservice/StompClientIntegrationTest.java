@@ -108,7 +108,7 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     return stompSession.subscribe(StompClientIntegrationTest.SUBSCRIPTION_ENDPOINT, sessionHandler);
   }
 
-  protected void performSubscribe(StompSession stompSession,
+  protected synchronized void performSubscribe(StompSession stompSession,
       List<LiveEventMessage> eventCollector) {
     stompSession
         .subscribe(StompClientIntegrationTest.SUBSCRIPTION_ENDPOINT, new StompFrameHandler() {
@@ -118,7 +118,7 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
           }
 
           @Override
-          public void handleFrame(StompHeaders headers, Object payload) {
+          public synchronized void handleFrame(StompHeaders headers, Object payload) {
             eventCollector.add((LiveEventMessage) payload);
           }
         });
