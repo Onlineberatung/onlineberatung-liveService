@@ -3,7 +3,6 @@ package de.caritas.cob.liveservice;
 import static java.util.Collections.singletonList;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.keycloak.common.VerificationException;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,7 +58,8 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
   static final String THIRD_VALID_USER = "thirdValidUser";
 
   private static final String SOCKET_URL = "ws://localhost:%d/live";
-  private final StompSessionHandlerAdapter sessionHandler = new StompSessionHandlerAdapter() {};
+  private final StompSessionHandlerAdapter sessionHandler = new StompSessionHandlerAdapter() {
+  };
 
   @LocalServerPort
   private Integer port;
@@ -81,11 +80,6 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
       when(observer.observeUserId(null)).thenThrow(new VerificationException("invalid"));
       return observer;
     }
-  }
-
-  @BeforeEach
-  void cleanMemory() {
-    System.gc();
   }
 
   protected StompSession performConnect(String accessToken)
@@ -116,17 +110,18 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
 
   protected void performSubscribe(StompSession stompSession,
       BlockingQueue<LiveEventMessage> eventCollector) {
-    stompSession.subscribe(StompClientIntegrationTest.SUBSCRIPTION_ENDPOINT, new StompFrameHandler() {
-      @Override
-      public Type getPayloadType(StompHeaders headers) {
-        return LiveEventMessage.class;
-      }
+    stompSession
+        .subscribe(StompClientIntegrationTest.SUBSCRIPTION_ENDPOINT, new StompFrameHandler() {
+          @Override
+          public Type getPayloadType(StompHeaders headers) {
+            return LiveEventMessage.class;
+          }
 
-      @Override
-      public void handleFrame(StompHeaders headers, Object payload) {
-        eventCollector.add((LiveEventMessage) payload);
-      }
-    });
+          @Override
+          public void handleFrame(StompHeaders headers, Object payload) {
+            eventCollector.add((LiveEventMessage) payload);
+          }
+        });
   }
 
   protected void performDisconnect(StompSession stompSession) {
@@ -138,10 +133,10 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
       List<String> userIds, Object eventContent) {
     try {
       return new ObjectMapper().writeValueAsString(
-              new LiveEventMessage()
-                  .eventType(eventType)
-                  .userIds(userIds)
-                  .eventContent(eventContent));
+          new LiveEventMessage()
+              .eventType(eventType)
+              .userIds(userIds)
+              .eventContent(eventContent));
     } catch (JsonProcessingException e) {
       throw new RuntimeJsonMappingException(e.getMessage());
     }
