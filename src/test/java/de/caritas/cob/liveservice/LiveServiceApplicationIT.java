@@ -136,6 +136,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     performDisconnect(stompSession);
+    receivedMessages.clear();
   }
 
   @Test
@@ -162,6 +163,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
             VideoCallRequestDTO.class);
     assertThat(resultContent, is(eventContent));
     performDisconnect(stompSession);
+    receivedMessages.clear();
   }
 
   @Test
@@ -181,6 +183,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLDENY));
     performDisconnect(stompSession);
+    receivedMessages.clear();
   }
 
   @Test
@@ -220,6 +223,9 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     performDisconnect(firstStompSession);
     performDisconnect(secondStompSession);
     performDisconnect(thirdStompSession);
+    firstUserMessages.clear();
+    secondUserMessages.clear();
+    thirdUserMessages.clear();
   }
 
 }

@@ -55,6 +55,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
       assertThat(furtherMessage, notNullValue());
       assertThat(furtherMessage.getEventType(), is(DIRECTMESSAGE));
     }
+    receivedMessages.clear();
     await()
         .atMost(MESSAGE_TIMEOUT, SECONDS)
         .until(this.liveEventMessageQueue::getCurrentOpenMessages, hasSize(0));
@@ -83,6 +84,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     performDisconnect(newStompSession);
+    receivedMessages.clear();
   }
 
 }
