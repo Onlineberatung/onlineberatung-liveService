@@ -40,24 +40,6 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @BeforeEach
-  void setup() {
-    socketUserRegistry.retrieveAllUsers()
-        .forEach(
-            socketUser -> socketUserRegistry.removeSession(socketUser.getWebsocketSessionId()));
-    liveEventMessageQueue.getCurrentOpenMessages().forEach(queuedMessage -> liveEventMessageQueue
-        .removeIdentifiedMessageWithId(queuedMessage.getMessageId()));
-  }
-
-  @AfterEach
-  void cleanup() {
-    socketUserRegistry.retrieveAllUsers()
-        .forEach(
-            socketUser -> socketUserRegistry.removeSession(socketUser.getWebsocketSessionId()));
-    liveEventMessageQueue.getCurrentOpenMessages().forEach(queuedMessage -> liveEventMessageQueue
-        .removeIdentifiedMessageWithId(queuedMessage.getMessageId()));
-  }
-
   @Test
   void sendLiveEvent_Should_sendDirectMessageMultipleTimesToUserAndFinalyRemove_When_clientDoesNotAcknowledge()
       throws Exception {
