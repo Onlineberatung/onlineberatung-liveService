@@ -16,8 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import de.caritas.cob.liveservice.StompClientIntegrationTest;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -38,7 +38,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
   void sendLiveEvent_Should_sendDirectMessageMultipleTimesToUserAndFinalyRemove_When_clientDoesNotAcknowledge()
       throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(5);
+    List<LiveEventMessage> receivedMessages = new ArrayList<>();
 
     performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
@@ -47,15 +47,17 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    await()
+        .atMost(MESSAGE_TIMEOUT * 10, SECONDS)
+        .until(receivedMessages::size, is(6));
+    var resultMessage = receivedMessages.iterator().next();
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     for (int i = 0; i < 5; i++) {
-      var furtherMessage = receivedMessages.poll(MESSAGE_TIMEOUT * 10, SECONDS);
+      var furtherMessage = receivedMessages.iterator().next();
       assertThat(furtherMessage, notNullValue());
       assertThat(furtherMessage.getEventType(), is(DIRECTMESSAGE));
     }
-    receivedMessages.clear();
     await()
         .atMost(MESSAGE_TIMEOUT, SECONDS)
         .until(this.liveEventMessageQueue::getCurrentOpenMessages, hasSize(0));
@@ -66,7 +68,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
   void sendLiveEvent_Should_sendDirectMessageToUserViaQueue_When_clientReconnectsUser()
       throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(2);
+    List<LiveEventMessage> receivedMessages = new ArrayList<>();
 
     performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
@@ -75,16 +77,17 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    receivedMessages.clear();
     performDisconnect(stompSession);
     var newStompSession = performConnect(FIRST_VALID_USER);
     performSubscribe(newStompSession, receivedMessages);
 
-    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    await()
+        .atMost(MESSAGE_TIMEOUT * 10, SECONDS)
+        .until(receivedMessages::size, is(1));
+    var resultMessage = receivedMessages.iterator().next();
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     performDisconnect(newStompSession);
-    receivedMessages.clear();
   }
 
 }

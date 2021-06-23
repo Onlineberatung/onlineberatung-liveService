@@ -26,8 +26,6 @@ import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
@@ -69,11 +67,11 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
   void connectMultipleUsersToSocket_Should_register_When_accessTokensAreValid() throws Exception {
     final List<StompSession> stompSessions = new ArrayList<>();
 
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 50; i++) {
       stompSessions.add(performConnect(FIRST_VALID_USER));
     }
 
-    assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(500));
+    assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(50));
     stompSessions.forEach(this::performDisconnect);
   }
 
@@ -123,7 +121,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
   @Test
   void sendLiveEvent_Should_sendDirectMessageEventToUser_When_userIsSubscribed() throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
+    List<LiveEventMessage> receivedMessages = new ArrayList<>();
 
     performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
@@ -132,18 +130,20 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    await()
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .until(receivedMessages::size, is(1));
+    var resultMessage = receivedMessages.iterator().next();
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
     performDisconnect(stompSession);
-    receivedMessages.clear();
   }
 
   @Test
   void sendLiveEvent_Should_sendVideoCallRequestMessageEventToUser_When_userIsSubscribed()
       throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
+    List<LiveEventMessage> receivedMessages = new ArrayList<>();
 
     var eventContent = new EasyRandom().nextObject(VideoCallRequestDTO.class);
 
@@ -155,7 +155,10 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    await()
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .until(receivedMessages::size, is(1));
+    var resultMessage = receivedMessages.iterator().next();
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLREQUEST));
     var resultContent = new ObjectMapper()
@@ -163,14 +166,13 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
             VideoCallRequestDTO.class);
     assertThat(resultContent, is(eventContent));
     performDisconnect(stompSession);
-    receivedMessages.clear();
   }
 
   @Test
   void sendLiveEvent_Should_sendVideoDenyRequestMessageEventToUser_When_userIsSubscribed()
       throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
+    List<LiveEventMessage> receivedMessages = new ArrayList<>();
 
     performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
@@ -179,11 +181,13 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    await()
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .until(receivedMessages::size, is(1));
+    var resultMessage = receivedMessages.iterator().next();
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLDENY));
     performDisconnect(stompSession);
-    receivedMessages.clear();
   }
 
   @Test
@@ -192,9 +196,9 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     var secondStompSession = performConnect(SECOND_VALID_USER);
     var thirdStompSession = performConnect(THIRD_VALID_USER);
 
-    BlockingQueue<LiveEventMessage> firstUserMessages = new ArrayBlockingQueue<>(1);
-    BlockingQueue<LiveEventMessage> secondUserMessages = new ArrayBlockingQueue<>(2);
-    BlockingQueue<LiveEventMessage> thirdUserMessages = new ArrayBlockingQueue<>(1);
+    List<LiveEventMessage> firstUserMessages = new ArrayList<>();
+    List<LiveEventMessage> secondUserMessages = new ArrayList<>();
+    List<LiveEventMessage> thirdUserMessages = new ArrayList<>();
 
     performSubscribe(firstStompSession, firstUserMessages);
     performSubscribe(secondStompSession, secondUserMessages);
@@ -213,19 +217,22 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    assertThat(firstUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
-    assertThat(secondUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
-    assertThat(secondUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
-    assertThat(thirdUserMessages.poll(MESSAGE_TIMEOUT, SECONDS), notNullValue());
-    assertThat(firstUserMessages, hasSize(0));
-    assertThat(secondUserMessages, hasSize(0));
-    assertThat(thirdUserMessages, hasSize(0));
+    await()
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .until(firstUserMessages::size, is(1));
+    assertThat(firstUserMessages.iterator().next(), notNullValue());
+    await()
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .until(secondUserMessages::size, is(2));
+    assertThat(secondUserMessages.iterator().next(), notNullValue());
+    assertThat(secondUserMessages.iterator().next(), notNullValue());
+    await()
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .until(thirdUserMessages::size, is(1));
+    assertThat(thirdUserMessages.iterator().next(), notNullValue());
     performDisconnect(firstStompSession);
     performDisconnect(secondStompSession);
     performDisconnect(thirdStompSession);
-    firstUserMessages.clear();
-    secondUserMessages.clear();
-    thirdUserMessages.clear();
   }
 
 }
