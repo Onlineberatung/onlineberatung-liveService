@@ -6,6 +6,7 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
@@ -48,8 +49,8 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
         .andExpect(status().isOk());
 
     await()
-        .atMost(MESSAGE_TIMEOUT * 10, SECONDS)
-        .until(receivedMessages::size, is(4));
+        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .until(receivedMessages::size, greaterThanOrEqualTo(4));
     var resultMessage = receivedMessages.get(0);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
