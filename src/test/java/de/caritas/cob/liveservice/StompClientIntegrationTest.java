@@ -49,7 +49,7 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = StompClientIntegrationTest.TestConfig.class)
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringContextTests {
 
   protected static final String SUBSCRIPTION_ENDPOINT = "/user/events";

@@ -23,14 +23,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.api.model.VideoCallRequestDTO;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
-import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
 import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import org.jeasy.random.EasyRandom;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -45,9 +42,6 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
   @Autowired
   private SocketUserRegistry socketUserRegistry;
-
-  @Autowired
-  private LiveEventMessageQueue liveEventMessageQueue;
 
   @Autowired
   private MockMvc mockMvc;

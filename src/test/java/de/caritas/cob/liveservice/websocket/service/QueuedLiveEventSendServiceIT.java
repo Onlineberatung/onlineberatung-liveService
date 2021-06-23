@@ -16,11 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import de.caritas.cob.liveservice.StompClientIntegrationTest;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.registry.LiveEventMessageQueue;
-import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,9 +30,6 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
 
   @Autowired
   private LiveEventMessageQueue liveEventMessageQueue;
-
-  @Autowired
-  private SocketUserRegistry socketUserRegistry;
 
   @Autowired
   private MockMvc mockMvc;
