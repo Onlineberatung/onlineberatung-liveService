@@ -24,6 +24,8 @@ import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.api.model.VideoCallRequestDTO;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -48,9 +50,10 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
   @Test
   void connectToSocket_Should_connect_When_accessTokenIsValid() throws Exception {
-    StompSession stompSession = performConnect(FIRST_VALID_USER);
+    var stompSession = performConnect(FIRST_VALID_USER);
 
     assertThat(stompSession.isConnected(), is(true));
+    performDisconnect(stompSession);
   }
 
   @Test
@@ -64,16 +67,19 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
   @Test
   void connectMultipleUsersToSocket_Should_register_When_accessTokensAreValid() throws Exception {
+    final List<StompSession> stompSessions = new ArrayList<>();
+
     for (int i = 0; i < 500; i++) {
-      performConnect(FIRST_VALID_USER);
+      stompSessions.add(performConnect(FIRST_VALID_USER));
     }
 
     assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(500));
+    stompSessions.forEach(this::performDisconnect);
   }
 
   @Test
   void connectToSocket_Should_registerExpectedUser_When_accessTokenIsValid() throws Exception {
-    performConnect(FIRST_VALID_USER);
+    var stompSession = performConnect(FIRST_VALID_USER);
 
     WebSocketUserSession registeredUser = this.socketUserRegistry.retrieveAllUsers().get(0);
 
@@ -81,11 +87,12 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(registeredUser.getWebsocketSessionId(), notNullValue());
     assertThat(registeredUser.getUserId(), is("validated user 1"));
     assertThat(registeredUser.getSubscriptionId(), nullValue());
+    performDisconnect(stompSession);
   }
 
   @Test
   void subscribe_Should_subscribeUser() throws Exception {
-    StompSession stompSession = performConnect(FIRST_VALID_USER);
+    var stompSession = performConnect(FIRST_VALID_USER);
     final Subscription subscription = performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession);
 
     assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(1));
@@ -100,11 +107,12 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(registeredUser.getSubscriptionId(), notNullValue());
     assertThat(subscription.getSubscriptionHeaders().get("destination"),
         contains(SUBSCRIPTION_ENDPOINT));
+    performDisconnect(stompSession);
   }
 
   @Test
   void disconnect_Should_removeUserFromRegistry() throws Exception {
-    StompSession stompSession = performConnect(FIRST_VALID_USER);
+    var stompSession = performConnect(FIRST_VALID_USER);
 
     assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(1));
     performDisconnect(stompSession);
@@ -114,7 +122,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
   @Test
   void sendLiveEvent_Should_sendDirectMessageEventToUser_When_userIsSubscribed() throws Exception {
-    StompSession stompSession = performConnect(FIRST_VALID_USER);
+    var stompSession = performConnect(FIRST_VALID_USER);
     BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
@@ -124,18 +132,19 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(DIRECTMESSAGE));
+    performDisconnect(stompSession);
   }
 
   @Test
   void sendLiveEvent_Should_sendVideoCallRequestMessageEventToUser_When_userIsSubscribed()
       throws Exception {
-    StompSession stompSession = performConnect(FIRST_VALID_USER);
+    var stompSession = performConnect(FIRST_VALID_USER);
     BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
 
-    Object eventContent = new EasyRandom().nextObject(VideoCallRequestDTO.class);
+    var eventContent = new EasyRandom().nextObject(VideoCallRequestDTO.class);
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
@@ -145,19 +154,20 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLREQUEST));
-    Object resultContent = new ObjectMapper()
+    var resultContent = new ObjectMapper()
         .readValue(new ObjectMapper().writeValueAsString(resultMessage.getEventContent()),
             VideoCallRequestDTO.class);
     assertThat(resultContent, is(eventContent));
+    performDisconnect(stompSession);
   }
 
   @Test
   void sendLiveEvent_Should_sendVideoDenyRequestMessageEventToUser_When_userIsSubscribed()
       throws Exception {
-    StompSession stompSession = performConnect(FIRST_VALID_USER);
+    var stompSession = performConnect(FIRST_VALID_USER);
     BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
 
     performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
@@ -167,16 +177,17 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    LiveEventMessage resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
+    var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
     assertThat(resultMessage.getEventType(), is(VIDEOCALLDENY));
+    performDisconnect(stompSession);
   }
 
   @Test
   void sendLiveEvents_Should_sendEventsToExpectedUsers_When_usersAreSubscribed() throws Exception {
-    StompSession firstStompSession = performConnect(FIRST_VALID_USER);
-    StompSession secondStompSession = performConnect(SECOND_VALID_USER);
-    StompSession thirdStompSession = performConnect(THIRD_VALID_USER);
+    var firstStompSession = performConnect(FIRST_VALID_USER);
+    var secondStompSession = performConnect(SECOND_VALID_USER);
+    var thirdStompSession = performConnect(THIRD_VALID_USER);
 
     BlockingQueue<LiveEventMessage> firstUserMessages = new ArrayBlockingQueue<>(1);
     BlockingQueue<LiveEventMessage> secondUserMessages = new ArrayBlockingQueue<>(2);
@@ -206,6 +217,9 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(firstUserMessages, hasSize(0));
     assertThat(secondUserMessages, hasSize(0));
     assertThat(thirdUserMessages, hasSize(0));
+    performDisconnect(firstStompSession);
+    performDisconnect(secondStompSession);
+    performDisconnect(thirdStompSession);
   }
 
 }

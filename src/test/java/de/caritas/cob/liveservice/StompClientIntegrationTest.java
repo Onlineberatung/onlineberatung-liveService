@@ -59,7 +59,7 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
   static final String THIRD_VALID_USER = "thirdValidUser";
 
   private static final String SOCKET_URL = "ws://localhost:%d/live";
-  private static final StompSessionHandlerAdapter SESSION_HANDLER = new StompSessionHandlerAdapter() {
+  private final StompSessionHandlerAdapter SESSION_HANDLER = new StompSessionHandlerAdapter() {
   };
 
   @LocalServerPort
