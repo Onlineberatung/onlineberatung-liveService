@@ -9,27 +9,17 @@ import static org.powermock.reflect.Whitebox.setInternalState;
 import de.caritas.cob.liveservice.websocket.model.IdentifiedMessage;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class LiveEventMessageQueueTest {
 
-  private final LiveEventMessageQueue liveEventMessageQueue = new LiveEventMessageQueue();
+  private LiveEventMessageQueue liveEventMessageQueue;
 
   @BeforeEach
   void setup() {
-    liveEventMessageQueue.getCurrentOpenMessages()
-        .forEach(
-            message -> liveEventMessageQueue.removeIdentifiedMessageWithId(message.getMessageId()));
+    this.liveEventMessageQueue = new LiveEventMessageQueue();
     setInternalState(liveEventMessageQueue, "minimumSecondsBeforeRetry", 1);
-  }
-
-  @AfterEach
-  void cleanup() {
-    liveEventMessageQueue.getCurrentOpenMessages()
-        .forEach(
-            message -> liveEventMessageQueue.removeIdentifiedMessageWithId(message.getMessageId()));
   }
 
   @Test
