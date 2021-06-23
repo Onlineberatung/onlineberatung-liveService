@@ -81,13 +81,13 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
   void connectToSocket_Should_registerExpectedUser_When_accessTokenIsValid() throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
 
-    WebSocketUserSession registeredUser = this.socketUserRegistry.retrieveAllUsers().get(0);
+    var registeredUser = this.socketUserRegistry.retrieveAllUsers().get(0);
 
+    performDisconnect(stompSession);
     assertThat(registeredUser, notNullValue());
     assertThat(registeredUser.getWebsocketSessionId(), notNullValue());
     assertThat(registeredUser.getUserId(), is("validated user 1"));
     assertThat(registeredUser.getSubscriptionId(), nullValue());
-    performDisconnect(stompSession);
   }
 
   @Test

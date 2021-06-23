@@ -59,8 +59,7 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
   static final String THIRD_VALID_USER = "thirdValidUser";
 
   private static final String SOCKET_URL = "ws://localhost:%d/live";
-  private final StompSessionHandlerAdapter SESSION_HANDLER = new StompSessionHandlerAdapter() {
-  };
+  private final StompSessionHandlerAdapter sessionHandler = new StompSessionHandlerAdapter() {};
 
   @LocalServerPort
   private Integer port;
@@ -101,12 +100,12 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     connectHeaders.add("accessToken", accessToken);
     ListenableFuture<StompSession> connect = socketStompClient.connect(
         String.format(SOCKET_URL, port), new WebSocketHttpHeaders(), connectHeaders,
-        SESSION_HANDLER);
+        sessionHandler);
     return connect.get(3, TimeUnit.SECONDS);
   }
 
   protected Subscription performSubscribe(String endpoint, StompSession stompSession) {
-    return stompSession.subscribe(endpoint, SESSION_HANDLER);
+    return stompSession.subscribe(endpoint, sessionHandler);
   }
 
   protected void performSubscribe(String endpoint, StompSession stompSession,
