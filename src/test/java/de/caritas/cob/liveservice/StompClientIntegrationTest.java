@@ -74,10 +74,10 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     @Bean
     public KeycloakTokenObserver keycloakTokenObserver() throws VerificationException {
       KeycloakTokenObserver observer = mock(KeycloakTokenObserver.class);
-      when(observer.observeUserId(eq(FIRST_VALID_USER))).thenReturn("validated user 1");
-      when(observer.observeUserId(eq(SECOND_VALID_USER))).thenReturn("validated user 2");
-      when(observer.observeUserId(eq(THIRD_VALID_USER))).thenReturn("validated user 3");
-      when(observer.observeUserId(eq(null))).thenThrow(new VerificationException("invalid"));
+      when(observer.observeUserId(FIRST_VALID_USER)).thenReturn("validated user 1");
+      when(observer.observeUserId(SECOND_VALID_USER)).thenReturn("validated user 2");
+      when(observer.observeUserId(THIRD_VALID_USER)).thenReturn("validated user 3");
+      when(observer.observeUserId(null)).thenThrow(new VerificationException("invalid"));
       return observer;
     }
   }
@@ -104,13 +104,13 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     return connect.get(3, TimeUnit.SECONDS);
   }
 
-  protected Subscription performSubscribe(String endpoint, StompSession stompSession) {
-    return stompSession.subscribe(endpoint, sessionHandler);
+  protected Subscription performSubscribe(StompSession stompSession) {
+    return stompSession.subscribe(StompClientIntegrationTest.SUBSCRIPTION_ENDPOINT, sessionHandler);
   }
 
-  protected void performSubscribe(String endpoint, StompSession stompSession,
+  protected void performSubscribe(StompSession stompSession,
       BlockingQueue<LiveEventMessage> eventCollector) {
-    stompSession.subscribe(endpoint, new StompFrameHandler() {
+    stompSession.subscribe(StompClientIntegrationTest.SUBSCRIPTION_ENDPOINT, new StompFrameHandler() {
       @Override
       public Type getPayloadType(StompHeaders headers) {
         return LiveEventMessage.class;

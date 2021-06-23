@@ -93,7 +93,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
   @Test
   void subscribe_Should_subscribeUser() throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
-    final Subscription subscription = performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession);
+    final Subscription subscription = performSubscribe(stompSession);
 
     assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(1));
     WebSocketUserSession registeredUser = this.socketUserRegistry.retrieveAllUsers().get(0);
@@ -125,7 +125,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     var stompSession = performConnect(FIRST_VALID_USER);
     BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
 
-    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
+    performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
         .contentType(APPLICATION_JSON)
         .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
@@ -146,7 +146,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
     var eventContent = new EasyRandom().nextObject(VideoCallRequestDTO.class);
 
-    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
+    performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
         .contentType(APPLICATION_JSON)
         .content(buildLiveEventMessage(VIDEOCALLREQUEST, singletonList("validated user 1"),
@@ -170,7 +170,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     var stompSession = performConnect(FIRST_VALID_USER);
     BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
 
-    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
+    performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
         .contentType(APPLICATION_JSON)
         .content(buildLiveEventMessage(VIDEOCALLDENY, singletonList("validated user 1"), null))
@@ -193,9 +193,9 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     BlockingQueue<LiveEventMessage> secondUserMessages = new ArrayBlockingQueue<>(2);
     BlockingQueue<LiveEventMessage> thirdUserMessages = new ArrayBlockingQueue<>(1);
 
-    performSubscribe(SUBSCRIPTION_ENDPOINT, firstStompSession, firstUserMessages);
-    performSubscribe(SUBSCRIPTION_ENDPOINT, secondStompSession, secondUserMessages);
-    performSubscribe(SUBSCRIPTION_ENDPOINT, thirdStompSession, thirdUserMessages);
+    performSubscribe(firstStompSession, firstUserMessages);
+    performSubscribe(secondStompSession, secondUserMessages);
+    performSubscribe(thirdStompSession, thirdUserMessages);
 
     mockMvc.perform(post(LIVEEVENT_SEND)
         .contentType(APPLICATION_JSON)

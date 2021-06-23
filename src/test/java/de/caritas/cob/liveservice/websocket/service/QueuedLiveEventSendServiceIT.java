@@ -40,7 +40,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
     var stompSession = performConnect(FIRST_VALID_USER);
     BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
 
-    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
+    performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
         .contentType(APPLICATION_JSON)
         .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
@@ -67,7 +67,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
     var stompSession = performConnect(FIRST_VALID_USER);
     BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
 
-    performSubscribe(SUBSCRIPTION_ENDPOINT, stompSession, receivedMessages);
+    performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
         .contentType(APPLICATION_JSON)
         .content(buildLiveEventMessage(DIRECTMESSAGE, singletonList("validated user 1"), null))
@@ -77,7 +77,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
     receivedMessages.clear();
     performDisconnect(stompSession);
     var newStompSession = performConnect(FIRST_VALID_USER);
-    performSubscribe(SUBSCRIPTION_ENDPOINT, newStompSession, receivedMessages);
+    performSubscribe(newStompSession, receivedMessages);
 
     var resultMessage = receivedMessages.poll(MESSAGE_TIMEOUT, SECONDS);
     assertThat(resultMessage, notNullValue());
