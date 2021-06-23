@@ -251,7 +251,6 @@
 							<includes>
 								<include>**/*IT.*</include>
 							</includes>
-							<argLine>-Xmx2048m</argLine>
 						</configuration>
 					</execution>
 				</executions>

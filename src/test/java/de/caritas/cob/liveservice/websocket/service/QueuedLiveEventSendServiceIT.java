@@ -38,7 +38,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
   void sendLiveEvent_Should_sendDirectMessageMultipleTimesToUserAndFinalyRemove_When_clientDoesNotAcknowledge()
       throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
+    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(5);
 
     performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
@@ -65,7 +65,7 @@ class QueuedLiveEventSendServiceIT extends StompClientIntegrationTest {
   void sendLiveEvent_Should_sendDirectMessageToUserViaQueue_When_clientReconnectsUser()
       throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
-    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(1);
+    BlockingQueue<LiveEventMessage> receivedMessages = new ArrayBlockingQueue<>(2);
 
     performSubscribe(stompSession, receivedMessages);
     mockMvc.perform(post(LIVEEVENT_SEND)
