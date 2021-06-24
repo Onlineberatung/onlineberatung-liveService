@@ -23,7 +23,8 @@ import org.springframework.stereotype.Component;
 public class LiveEventMessageQueue {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LiveEventMessageQueue.class);
-  private static final Set<IdentifiedMessage> QUEUED_LIVE_MESSAGES = new CopyOnWriteArraySet<>();
+
+  private final Set<IdentifiedMessage> queuedLiveMessages = new CopyOnWriteArraySet<>();
 
   @Value("${live.event.minimum.seconds.before.retry}")
   private Integer minimumSecondsBeforeRetry;
@@ -35,7 +36,7 @@ public class LiveEventMessageQueue {
    */
   public synchronized void addIdentifiedMessage(IdentifiedMessage identifiedMessage) {
     LOGGER.info("Add message with id {} to queue", identifiedMessage.getMessageId());
-    QUEUED_LIVE_MESSAGES.add(identifiedMessage);
+    this.queuedLiveMessages.add(identifiedMessage);
   }
 
   /**
@@ -45,7 +46,7 @@ public class LiveEventMessageQueue {
    */
   public synchronized void removeIdentifiedMessageWithId(String messageId) {
     LOGGER.info("Remove message with id {} from queue", messageId);
-    QUEUED_LIVE_MESSAGES.removeIf(message -> message.getMessageId().equals(messageId));
+    this.queuedLiveMessages.removeIf(message -> message.getMessageId().equals(messageId));
   }
 
   /**
@@ -54,7 +55,7 @@ public class LiveEventMessageQueue {
    * @return all current {@link IdentifiedMessage}
    */
   public synchronized Collection<IdentifiedMessage> getCurrentOpenMessages() {
-    return new LinkedList<>(QUEUED_LIVE_MESSAGES).stream()
+    return new LinkedList<>(queuedLiveMessages).stream()
         .filter(this::minimumSecondsBeforeRetryReached)
         .collect(Collectors.toList());
   }
