@@ -3,7 +3,6 @@ package de.caritas.cob.liveservice;
 import static java.util.Collections.singletonList;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +14,6 @@ import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.websocket.service.KeycloakTokenObserver;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -35,9 +33,6 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSession.Subscription;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -50,16 +45,16 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     classes = StompClientIntegrationTest.TestConfig.class)
-@TestPropertySource(properties = "spring.profiles.active=testing")
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringContextTests {
 
-  static final String FIRST_VALID_USER = "firstValidUser";
+  protected static final String SUBSCRIPTION_ENDPOINT = "/user/events";
+  protected static final int MESSAGE_TIMEOUT = 5;
+  protected static final String FIRST_VALID_USER = "firstValidUser";
   static final String SECOND_VALID_USER = "secondValidUser";
   static final String THIRD_VALID_USER = "thirdValidUser";
 
   private static final String SOCKET_URL = "ws://localhost:%d/live";
-  private static final StompSessionHandlerAdapter SESSION_HANDLER = new StompSessionHandlerAdapter() {
+  private final StompSessionHandlerAdapter sessionHandler = new StompSessionHandlerAdapter() {
   };
 
   @LocalServerPort
@@ -75,10 +70,10 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     @Bean
     public KeycloakTokenObserver keycloakTokenObserver() throws VerificationException {
       KeycloakTokenObserver observer = mock(KeycloakTokenObserver.class);
-      when(observer.observeUserId(eq(FIRST_VALID_USER))).thenReturn("validated user 1");
-      when(observer.observeUserId(eq(SECOND_VALID_USER))).thenReturn("validated user 2");
-      when(observer.observeUserId(eq(THIRD_VALID_USER))).thenReturn("validated user 3");
-      when(observer.observeUserId(eq(null))).thenThrow(new VerificationException("invalid"));
+      when(observer.observeUserId(FIRST_VALID_USER)).thenReturn("validated user 1");
+      when(observer.observeUserId(SECOND_VALID_USER)).thenReturn("validated user 2");
+      when(observer.observeUserId(THIRD_VALID_USER)).thenReturn("validated user 3");
+      when(observer.observeUserId(null)).thenThrow(new VerificationException("invalid"));
       return observer;
     }
   }
@@ -101,27 +96,28 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
     connectHeaders.add("accessToken", accessToken);
     ListenableFuture<StompSession> connect = socketStompClient.connect(
         String.format(SOCKET_URL, port), new WebSocketHttpHeaders(), connectHeaders,
-        SESSION_HANDLER);
+        sessionHandler);
     return connect.get(3, TimeUnit.SECONDS);
   }
 
-  protected Subscription performSubscribe(String endpoint, StompSession stompSession) {
-    return stompSession.subscribe(endpoint, SESSION_HANDLER);
+  protected Subscription performSubscribe(StompSession stompSession) {
+    return stompSession.subscribe(StompClientIntegrationTest.SUBSCRIPTION_ENDPOINT, sessionHandler);
   }
 
-  protected void performSubscribe(String endpoint, StompSession stompSession,
-      BlockingQueue<LiveEventMessage> eventCollector) {
-    stompSession.subscribe(endpoint, new StompFrameHandler() {
-      @Override
-      public Type getPayloadType(StompHeaders headers) {
-        return LiveEventMessage.class;
-      }
+  protected synchronized void performSubscribe(StompSession stompSession,
+      List<LiveEventMessage> eventCollector) {
+    stompSession
+        .subscribe(StompClientIntegrationTest.SUBSCRIPTION_ENDPOINT, new StompFrameHandler() {
+          @Override
+          public Type getPayloadType(StompHeaders headers) {
+            return LiveEventMessage.class;
+          }
 
-      @Override
-      public void handleFrame(StompHeaders headers, Object payload) {
-        eventCollector.add((LiveEventMessage) payload);
-      }
-    });
+          @Override
+          public synchronized void handleFrame(StompHeaders headers, Object payload) {
+            eventCollector.add((LiveEventMessage) payload);
+          }
+        });
   }
 
   protected void performDisconnect(StompSession stompSession) {
@@ -133,10 +129,10 @@ public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringCon
       List<String> userIds, Object eventContent) {
     try {
       return new ObjectMapper().writeValueAsString(
-              new LiveEventMessage()
-                  .eventType(eventType)
-                  .userIds(userIds)
-                  .eventContent(eventContent));
+          new LiveEventMessage()
+              .eventType(eventType)
+              .userIds(userIds)
+              .eventContent(eventContent));
     } catch (JsonProcessingException e) {
       throw new RuntimeJsonMappingException(e.getMessage());
     }

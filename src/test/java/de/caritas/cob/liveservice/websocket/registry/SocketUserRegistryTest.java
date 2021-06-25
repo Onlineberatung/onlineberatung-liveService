@@ -7,26 +7,16 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SocketUserRegistryTest {
 
-  private final SocketUserRegistry socketUserRegistry = new SocketUserRegistry();
+  private SocketUserRegistry socketUserRegistry;
 
   @BeforeEach
   void setup() {
-    socketUserRegistry.retrieveAllUsers()
-        .forEach(
-            socketUser -> socketUserRegistry.removeSession(socketUser.getWebsocketSessionId()));
-  }
-
-  @AfterEach
-  void cleanup() {
-    socketUserRegistry.retrieveAllUsers()
-        .forEach(
-            socketUser -> socketUserRegistry.removeSession(socketUser.getWebsocketSessionId()));
+    this.socketUserRegistry = new SocketUserRegistry();
   }
 
   @Test
