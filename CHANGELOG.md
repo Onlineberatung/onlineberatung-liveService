@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.5.1...v1.6.0) (2021-06-28)
+
+
+### Features
+
+* adapt documentation ([0ae2127](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/0ae2127049bb479afeb94aa8d3a2f9432f6864ec))
+* provide old native header id ([e765f77](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/e765f77cedc9fe375c5cb6a8f10894dd5f93048b))
+* translate ([09a62d4](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/09a62d4b6e3f44b956c900720628b8ee381b4a31))
+
 ### [1.5.1](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.5.0...v1.5.1) (2021-06-18)
 
 ## [1.5.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.4.0...v1.5.0) (2021-06-18)
