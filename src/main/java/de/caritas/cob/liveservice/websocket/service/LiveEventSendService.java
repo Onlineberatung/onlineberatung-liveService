@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 public class LiveEventSendService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LiveEventSendService.class);
+  private static final String NATIVE_HEADER_ID = "id";
 
   private final @NonNull SimpMessagingTemplate simpMessagingTemplate;
   private final @NonNull LiveEventMessageQueue liveEventMessageQueue;
@@ -71,8 +72,9 @@ public class LiveEventSendService {
     var headerAccessor = StompHeaderAccessor.create(StompCommand.MESSAGE);
     headerAccessor
         .setSessionId(identifiedMessage.getWebsocketUserSession().getWebsocketSessionId());
-    headerAccessor.setLeaveMutable(true);
     headerAccessor.setMessageId(identifiedMessage.getMessageId());
+    headerAccessor.addNativeHeader(NATIVE_HEADER_ID, identifiedMessage.getMessageId());
+    headerAccessor.setLeaveMutable(true);
     this.simpMessagingTemplate
         .convertAndSendToUser(identifiedMessage.getWebsocketUserSession().getWebsocketSessionId(),
             EVENTS.getSubscriptionEndpoint(), identifiedMessage.getLiveEventMessage(),

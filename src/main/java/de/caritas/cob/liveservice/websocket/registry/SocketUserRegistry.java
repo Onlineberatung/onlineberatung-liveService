@@ -18,7 +18,8 @@ import org.springframework.stereotype.Component;
 public class SocketUserRegistry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SocketUserRegistry.class);
-  private static final Set<WebSocketUserSession> SUBSCRIBED_USERS = new CopyOnWriteArraySet<>();
+
+  private final Set<WebSocketUserSession> subscribedUsers = new CopyOnWriteArraySet<>();
 
   /**
    * Adds the given {@link WebSocketUserSession} to the registry.
@@ -27,7 +28,7 @@ public class SocketUserRegistry {
    */
   public synchronized void addUser(WebSocketUserSession webSocketUserSession) {
     LOGGER.info("User with id {} is connected", webSocketUserSession.getUserId());
-    SUBSCRIBED_USERS.add(webSocketUserSession);
+    this.subscribedUsers.add(webSocketUserSession);
   }
 
   /**
@@ -39,7 +40,7 @@ public class SocketUserRegistry {
     WebSocketUserSession sessionToRemove = findUserBySessionId(sessionId);
     LOGGER.info("Remove socket session with id {}", sessionId);
     if (nonNull(sessionToRemove)) {
-      SUBSCRIBED_USERS.remove(sessionToRemove);
+      this.subscribedUsers.remove(sessionToRemove);
     }
   }
 
@@ -50,7 +51,7 @@ public class SocketUserRegistry {
    * @return the {@link WebSocketUserSession} or null if session does not exist
    */
   public synchronized WebSocketUserSession findUserBySessionId(String socketSessionId) {
-    return SUBSCRIBED_USERS.stream()
+    return this.subscribedUsers.stream()
         .filter(userSession -> socketSessionId.equals(userSession.getWebsocketSessionId()))
         .findFirst()
         .orElse(null);
@@ -62,7 +63,7 @@ public class SocketUserRegistry {
    * @return all socket session users
    */
   public synchronized List<WebSocketUserSession> retrieveAllUsers() {
-    return new LinkedList<>(SUBSCRIBED_USERS);
+    return new LinkedList<>(this.subscribedUsers);
   }
 
 }
