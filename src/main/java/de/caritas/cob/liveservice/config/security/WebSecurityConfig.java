@@ -27,7 +27,7 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
    */
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http
+    /*http
         .csrf().disable()
         .authenticationProvider(keycloakAuthenticationProvider())
         .addFilterBefore(keycloakAuthenticationProcessingFilter(), BasicAuthenticationFilter.class)
@@ -39,7 +39,7 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         .antMatchers(SpringFoxConfig.WHITE_LIST).permitAll()
         .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/live"))).permitAll()
         .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/live/**")))
-        .permitAll();
+        .permitAll();*/
   }
 
   /**
