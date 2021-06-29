@@ -22,8 +22,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  @Value("${app.base.url}")
-  private String appBaseUrl;
+  @Value("${allowed.origins}")
+  private String[] allowedOrigins;
 
   private final @NonNull ClientInboundChannelInterceptor clientInboundChannelInterceptor;
 
@@ -46,7 +46,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry.addEndpoint("/live")
-        .setAllowedOrigins(this.appBaseUrl)
+        .setAllowedOrigins(this.allowedOrigins)
         .withSockJS();
   }
 
