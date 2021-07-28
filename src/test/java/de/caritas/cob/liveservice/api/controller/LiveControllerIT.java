@@ -4,6 +4,7 @@ import static de.caritas.cob.liveservice.StompClientIntegrationTest.buildLiveEve
 import static de.caritas.cob.liveservice.api.model.EventType.DIRECTMESSAGE;
 import static de.caritas.cob.liveservice.api.model.EventType.VIDEOCALLDENY;
 import static de.caritas.cob.liveservice.api.model.EventType.VIDEOCALLREQUEST;
+import static java.util.Arrays.asList;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,8 +34,9 @@ public class LiveControllerIT {
   public void sendLiveEvent_Should_returnStatusOk_When_calledWithValidDirectMessageParams()
       throws Exception {
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "1", "2").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, null)).contentType(APPLICATION_JSON))
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(DIRECTMESSAGE, asList("1", "2"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
   }
 
@@ -42,8 +44,9 @@ public class LiveControllerIT {
   public void sendLiveEvent_Should_returnStatusOk_When_calledWithValidVideoCallMessageParams()
       throws Exception {
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "1", "2").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(VIDEOCALLREQUEST, new VideoCallRequestDTO()))
+        .contentType(APPLICATION_JSON)
+        .content(
+            buildLiveEventMessage(VIDEOCALLREQUEST, asList("1", "2"), new VideoCallRequestDTO()))
         .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
   }
@@ -52,15 +55,17 @@ public class LiveControllerIT {
   public void sendLiveEvent_Should_returnStatusOk_When_calledWithValidVideoDenyMessageParams()
       throws Exception {
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .param(USER_IDS_PARAM, "1", "2").contentType(APPLICATION_JSON)
-        .content(buildLiveEventMessage(VIDEOCALLDENY, null)).contentType(APPLICATION_JSON))
+        .contentType(APPLICATION_JSON)
+        .content(buildLiveEventMessage(VIDEOCALLDENY, asList("1", "2"), null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isOk());
   }
 
   @Test
   public void sendLiveEvent_Should_returnBadRequest_When_userIdsAreMissing() throws Exception {
     mockMvc.perform(post(LIVEEVENT_SEND)
-        .content(buildLiveEventMessage(DIRECTMESSAGE, null)).contentType(APPLICATION_JSON))
+        .content(buildLiveEventMessage(DIRECTMESSAGE, null, null))
+        .contentType(APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
 

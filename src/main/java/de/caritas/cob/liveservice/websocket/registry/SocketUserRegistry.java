@@ -1,11 +1,14 @@
-package de.caritas.cob.liveservice.websocket.service;
+package de.caritas.cob.liveservice.websocket.registry;
 
 import static java.util.Objects.nonNull;
 
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,7 +17,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SocketUserRegistry {
 
-  private static final List<WebSocketUserSession> SUBSCRIBED_USERS = new CopyOnWriteArrayList<>();
+  private static final Logger LOGGER = LoggerFactory.getLogger(SocketUserRegistry.class);
+
+  private final Set<WebSocketUserSession> subscribedUsers = new CopyOnWriteArraySet<>();
 
   /**
    * Adds the given {@link WebSocketUserSession} to the registry.
@@ -22,7 +27,8 @@ public class SocketUserRegistry {
    * @param webSocketUserSession the user session to be added
    */
   public synchronized void addUser(WebSocketUserSession webSocketUserSession) {
-    SUBSCRIBED_USERS.add(webSocketUserSession);
+    LOGGER.info("User with id {} is connected", webSocketUserSession.getUserId());
+    this.subscribedUsers.add(webSocketUserSession);
   }
 
   /**
@@ -32,8 +38,9 @@ public class SocketUserRegistry {
    */
   public synchronized void removeSession(String sessionId) {
     WebSocketUserSession sessionToRemove = findUserBySessionId(sessionId);
+    LOGGER.info("Remove socket session with id {}", sessionId);
     if (nonNull(sessionToRemove)) {
-      SUBSCRIBED_USERS.remove(sessionToRemove);
+      this.subscribedUsers.remove(sessionToRemove);
     }
   }
 
@@ -44,7 +51,7 @@ public class SocketUserRegistry {
    * @return the {@link WebSocketUserSession} or null if session does not exist
    */
   public synchronized WebSocketUserSession findUserBySessionId(String socketSessionId) {
-    return SUBSCRIBED_USERS.stream()
+    return this.subscribedUsers.stream()
         .filter(userSession -> socketSessionId.equals(userSession.getWebsocketSessionId()))
         .findFirst()
         .orElse(null);
@@ -56,7 +63,7 @@ public class SocketUserRegistry {
    * @return all socket session users
    */
   public synchronized List<WebSocketUserSession> retrieveAllUsers() {
-    return new LinkedList<>(SUBSCRIBED_USERS);
+    return new LinkedList<>(this.subscribedUsers);
   }
 
 }

@@ -4,7 +4,9 @@ import static java.util.Collections.emptyList;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +27,19 @@ public class WebSocketSessionIdResolver {
    * @param userIds the user ids to search for
    * @return all current registered socket session ids
    */
-  public List<String> resolveUserIds(List<String> userIds) {
+  public List<WebSocketUserSession> resolveUserSessions(List<String> userIds) {
     if (isEmpty(userIds)) {
       return emptyList();
     }
     return socketUserRegistry.retrieveAllUsers().stream()
         .filter(socketUser -> userIds.contains(socketUser.getUserId()))
-        .map(WebSocketUserSession::getWebsocketSessionId)
         .collect(Collectors.toList());
+  }
+
+  public Optional<WebSocketUserSession> resolveUserSession(String userId) {
+    return this.socketUserRegistry.retrieveAllUsers().stream()
+        .filter(session -> userId.equals(session.getUserId()))
+        .findFirst();
   }
 
 }

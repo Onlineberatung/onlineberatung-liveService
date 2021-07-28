@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.5.1...v1.6.0) (2021-06-28)
+
+
+### Features
+
+* adapt documentation ([0ae2127](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/0ae2127049bb479afeb94aa8d3a2f9432f6864ec))
+* provide old native header id ([e765f77](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/e765f77cedc9fe375c5cb6a8f10894dd5f93048b))
+* translate ([09a62d4](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/09a62d4b6e3f44b956c900720628b8ee381b4a31))
+
+### [1.5.1](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.5.0...v1.5.1) (2021-06-18)
+
+## [1.5.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.4.0...v1.5.0) (2021-06-18)
+
+
+### Features
+
+* adapt new keycloak version ([e9b5d4f](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/e9b5d4fb9186fc17f42e536879ab9f39c1ddc59e))
+* add new live event type ([0c09fdc](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/0c09fdc906870f402ca5e0b23e4f7cec06bd0e25))
+* add new live event type ([480e2b4](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/480e2b4a1f5d7470d135a2093ddfdf0208c716e3))
+* added anonymous conversation finished event ([70f7b9b](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/70f7b9b98145c5af13258621d2fa3b2a595b4089))
+* added status source content for finish conversation event ([2097e73](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/2097e73b13b26ae8ba033ca481bff9e5868dc47f))
+* handle user id list via request body ([bb1b660](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/bb1b6607d1905b396940e2f7dd3b6d52f108123a))
+* provide ackowledge based queued message handling ([eb037d5](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/eb037d57de141b37fd878520a556fa28ba4edd49))
+
 ## [1.4.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.3.0...v1.4.0) (2021-04-12)
 
 

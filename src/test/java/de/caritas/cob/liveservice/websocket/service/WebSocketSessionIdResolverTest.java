@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
+import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,14 +28,14 @@ public class WebSocketSessionIdResolverTest {
 
   @Test
   public void resolveUserIds_Should_returnEmptyList_When_userIdsAreNull() {
-    List<String> sessionIds = this.sessionIdResolver.resolveUserIds(null);
+    List<WebSocketUserSession> sessionIds = this.sessionIdResolver.resolveUserSessions(null);
 
     assertThat(sessionIds, hasSize(0));
   }
 
   @Test
   public void resolveUserIds_Should_returnEmptyList_When_userIdsAreEmpty() {
-    List<String> sessionIds = this.sessionIdResolver.resolveUserIds(emptyList());
+    List<WebSocketUserSession> sessionIds = this.sessionIdResolver.resolveUserSessions(emptyList());
 
     assertThat(sessionIds, hasSize(0));
   }
@@ -49,7 +50,7 @@ public class WebSocketSessionIdResolverTest {
     );
     when(socketUserRegistry.retrieveAllUsers()).thenReturn(registeredSessions);
 
-    List<String> sessionIds = this.sessionIdResolver.resolveUserIds(userIds);
+    List<WebSocketUserSession> sessionIds = this.sessionIdResolver.resolveUserSessions(userIds);
 
     assertThat(sessionIds, hasSize(0));
   }
@@ -72,13 +73,13 @@ public class WebSocketSessionIdResolverTest {
     );
     when(socketUserRegistry.retrieveAllUsers()).thenReturn(registeredSessions);
 
-    List<String> sessionIds = this.sessionIdResolver.resolveUserIds(userIds);
+    List<WebSocketUserSession> sessionIds = this.sessionIdResolver.resolveUserSessions(userIds);
 
     assertThat(sessionIds, hasSize(4));
-    assertThat(sessionIds.get(0), is("21"));
-    assertThat(sessionIds.get(1), is("41"));
-    assertThat(sessionIds.get(2), is("71"));
-    assertThat(sessionIds.get(3), is("91"));
+    assertThat(sessionIds.get(0).getWebsocketSessionId(), is("21"));
+    assertThat(sessionIds.get(1).getWebsocketSessionId(), is("41"));
+    assertThat(sessionIds.get(2).getWebsocketSessionId(), is("71"));
+    assertThat(sessionIds.get(3).getWebsocketSessionId(), is("91"));
   }
 
   @Test
@@ -92,11 +93,11 @@ public class WebSocketSessionIdResolverTest {
     );
     when(socketUserRegistry.retrieveAllUsers()).thenReturn(registeredSessions);
 
-    List<String> sessionIds = this.sessionIdResolver.resolveUserIds(userIds);
+    List<WebSocketUserSession> sessionIds = this.sessionIdResolver.resolveUserSessions(userIds);
 
     assertThat(sessionIds, hasSize(2));
-    assertThat(sessionIds.get(0), is("21"));
-    assertThat(sessionIds.get(1), is("71"));
+    assertThat(sessionIds.get(0).getWebsocketSessionId(), is("21"));
+    assertThat(sessionIds.get(1).getWebsocketSessionId(), is("71"));
   }
 
   @Test
@@ -109,12 +110,12 @@ public class WebSocketSessionIdResolverTest {
     );
     when(socketUserRegistry.retrieveAllUsers()).thenReturn(registeredSessions);
 
-    List<String> sessionIds = this.sessionIdResolver.resolveUserIds(userIds);
+    List<WebSocketUserSession> sessionIds = this.sessionIdResolver.resolveUserSessions(userIds);
 
     assertThat(sessionIds, hasSize(3));
-    assertThat(sessionIds.get(0), is("21"));
-    assertThat(sessionIds.get(1), is("41"));
-    assertThat(sessionIds.get(2), is("71"));
+    assertThat(sessionIds.get(0).getWebsocketSessionId(), is("21"));
+    assertThat(sessionIds.get(1).getWebsocketSessionId(), is("41"));
+    assertThat(sessionIds.get(2).getWebsocketSessionId(), is("71"));
   }
 
 }
