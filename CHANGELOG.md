@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.6.0...v1.7.0) (2021-12-14)
+
+
+### Features
+
+* updated dockerImage.yml ([cecdc80](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/commit/cecdc80f0b948ecaf4777705ccd949ac761fee66))
+
 ## [1.6.0](https://github.com/CaritasDeutschland/caritas-onlineBeratung-liveService/compare/v1.5.1...v1.6.0) (2021-06-28)
 
 
