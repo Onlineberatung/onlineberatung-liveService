@@ -1,5 +1,5 @@
 {
-  "name": "caritas-online-beratung-liveservice",
+  "name": "online-beratung-liveservice",
   "version": "1.7.0",
   "scripts": {
     "release": "standard-version"
