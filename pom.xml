@@ -29,6 +29,8 @@
 		<springfox-bean-validators.version>3.0.0</springfox-bean-validators.version>
 		<springfox-swagger-ui.version>3.0.0</springfox-swagger-ui.version>
 		<springfox-swagger2.version>3.0.0</springfox-swagger2.version>
+		<spring.security>5.7.3</spring.security>
+		<openapi-generator-maven-plugin.version>5.1.1</openapi-generator-maven-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -54,11 +56,17 @@
 			<version>5.3.5.RELEASE</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${spring.security}</version>
+		</dependency>
+
 		<!-- OpenApi/Swagger dependencies -->
 		<dependency>
 			<groupId>org.openapitools</groupId>
 			<artifactId>openapi-generator-maven-plugin</artifactId>
-			<version>5.1.1</version>
+			<version>${openapi-generator-maven-plugin.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
