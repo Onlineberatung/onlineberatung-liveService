@@ -13,6 +13,8 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Configuration class to provide the keycloak security configuration.
@@ -40,6 +42,16 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/live"))).permitAll()
         .requestMatchers(new NegatedRequestMatcher(new AntPathRequestMatcher("/live/**")))
         .permitAll();
+  }
+
+  @Bean
+  public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowCredentials(true).allowedOriginPatterns("*");
+      }
+    };
   }
 
   /**
