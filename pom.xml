@@ -26,11 +26,9 @@
 		<!-- force at least version 2.16 due to https://logging.apache.org/log4j/2.x/security.html -->
 		<log4j.version>2.17.1</log4j.version>
 		<jackson-databind-nullable.version>0.2.3</jackson-databind-nullable.version>
-		<springfox-bean-validators.version>3.0.0</springfox-bean-validators.version>
-		<springfox-swagger-ui.version>3.0.0</springfox-swagger-ui.version>
-		<springfox-swagger2.version>3.0.0</springfox-swagger2.version>
 		<spring-security.version>5.7.5</spring-security.version>
 		<openapi-generator-maven-plugin.version>5.1.1</openapi-generator-maven-plugin.version>
+		<springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
 	</properties>
 
 	<dependencies>
@@ -77,18 +75,8 @@
 		<!-- SpringFox: generate YAML file from POJOs and generate documentation -->
 		<dependency>
 			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>${springfox-swagger2.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-bean-validators</artifactId>
-			<version>${springfox-bean-validators.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>${springfox-swagger-ui.version}</version>
+			<artifactId>springfox-boot-starter</artifactId>
+			<version>${springfox-boot-starter.version}</version>
 		</dependency>
 
 		<!-- Keycloak dependencies -->
