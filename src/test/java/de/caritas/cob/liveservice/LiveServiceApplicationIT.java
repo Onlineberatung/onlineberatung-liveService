@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.caritas.cob.liveservice.api.controller.CustomSwaggerApiResourceController;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.api.model.VideoCallRequestDTO;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
@@ -31,6 +32,7 @@ import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSession.Subscription;
 import org.springframework.test.context.TestPropertySource;
@@ -39,6 +41,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = "spring.profiles.active=testing")
 class LiveServiceApplicationIT extends StompClientIntegrationTest {
+
+  @MockBean
+  private CustomSwaggerApiResourceController customSwaggerApiResourceController;
 
   @Autowired
   private SocketUserRegistry socketUserRegistry;
