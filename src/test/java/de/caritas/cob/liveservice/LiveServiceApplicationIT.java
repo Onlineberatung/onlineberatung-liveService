@@ -98,10 +98,11 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     var stompSession = performConnect(FIRST_VALID_USER);
     final Subscription subscription = performSubscribe(stompSession);
 
+
     assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(1));
     WebSocketUserSession registeredUser = this.socketUserRegistry.retrieveAllUsers().get(0);
     await()
-        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .atMost(15, SECONDS)
         .until(registeredUser::getSubscriptionId, notNullValue());
 
     assertThat(registeredUser, notNullValue());
@@ -110,11 +111,11 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
     assertThat(registeredUser.getSubscriptionId(), notNullValue());
     assertThat(subscription.getSubscriptionHeaders().get("destination"),
         contains(SUBSCRIPTION_ENDPOINT));
-    performDisconnect(stompSession);
   }
 
   @Test
   void disconnect_Should_removeUserFromRegistry() throws Exception {
+
     var stompSession = performConnect(FIRST_VALID_USER);
 
     assertThat(this.socketUserRegistry.retrieveAllUsers(), hasSize(1));
