@@ -188,7 +188,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
         .andExpect(status().isOk());
 
     await()
-        .atMost(MESSAGE_TIMEOUT, SECONDS)
+        .atMost(15, SECONDS)
         .until(receivedMessages::size, is(1));
     var resultMessage = receivedMessages.iterator().next();
     assertThat(resultMessage, notNullValue());
