@@ -1,11 +1,33 @@
 package de.caritas.cob.liveservice;
 
+import static de.caritas.cob.liveservice.api.controller.LiveControllerIT.LIVEEVENT_SEND;
+import static de.caritas.cob.liveservice.api.model.EventType.DIRECTMESSAGE;
+import static de.caritas.cob.liveservice.api.model.EventType.VIDEOCALLDENY;
+import static de.caritas.cob.liveservice.api.model.EventType.VIDEOCALLREQUEST;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.caritas.cob.liveservice.api.controller.CustomSwaggerApiResourceController;
 import de.caritas.cob.liveservice.api.model.LiveEventMessage;
 import de.caritas.cob.liveservice.api.model.VideoCallRequestDTO;
 import de.caritas.cob.liveservice.websocket.model.WebSocketUserSession;
 import de.caritas.cob.liveservice.websocket.registry.SocketUserRegistry;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,23 +37,6 @@ import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSession.Subscription;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import static de.caritas.cob.liveservice.api.controller.LiveControllerIT.LIVEEVENT_SEND;
-import static de.caritas.cob.liveservice.api.model.EventType.*;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = "spring.profiles.active=testing")
