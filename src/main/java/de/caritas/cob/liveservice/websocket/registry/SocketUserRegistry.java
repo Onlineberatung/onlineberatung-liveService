@@ -31,6 +31,10 @@ public class SocketUserRegistry {
     this.subscribedUsers.add(webSocketUserSession);
   }
 
+  public synchronized void clearAllSessions() {
+    this.subscribedUsers.clear();
+  }
+
   /**
    * Removes the user session if a session with given id exists.
    *
@@ -65,5 +69,6 @@ public class SocketUserRegistry {
   public synchronized List<WebSocketUserSession> retrieveAllUsers() {
     return new LinkedList<>(this.subscribedUsers);
   }
+
 
 }

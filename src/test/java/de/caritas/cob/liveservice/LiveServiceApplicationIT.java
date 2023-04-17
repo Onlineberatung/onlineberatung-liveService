@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.jeasy.random.EasyRandom;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,6 +51,11 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
 
   @Autowired
   private MockMvc mockMvc;
+
+  @BeforeEach
+  void setup() {
+    socketUserRegistry.clearAllSessions();
+  }
 
   @Test
   void connectToSocket_Should_connect_When_accessTokenIsValid() throws Exception {
@@ -96,6 +102,7 @@ class LiveServiceApplicationIT extends StompClientIntegrationTest {
   @Test
   void subscribe_Should_subscribeUser() throws Exception {
     var stompSession = performConnect(FIRST_VALID_USER);
+
     final Subscription subscription = performSubscribe(stompSession);
 
 
