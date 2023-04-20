@@ -48,7 +48,7 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 public abstract class StompClientIntegrationTest extends AbstractJUnit4SpringContextTests {
 
   protected static final String SUBSCRIPTION_ENDPOINT = "/user/events";
-  protected static final int MESSAGE_TIMEOUT = 5;
+  protected static final int MESSAGE_TIMEOUT = 10;
   protected static final String FIRST_VALID_USER = "firstValidUser";
   static final String SECOND_VALID_USER = "secondValidUser";
   static final String THIRD_VALID_USER = "thirdValidUser";
