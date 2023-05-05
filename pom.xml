@@ -26,7 +26,7 @@
 		<!-- force at least version 2.16 due to https://logging.apache.org/log4j/2.x/security.html -->
 		<log4j.version>2.17.1</log4j.version>
 		<jackson-databind-nullable.version>0.2.3</jackson-databind-nullable.version>
-		<spring-security.version>5.7.5</spring-security.version>
+		<spring-security.version>5.7.8</spring-security.version>
 		<openapi-generator-maven-plugin.version>5.1.1</openapi-generator-maven-plugin.version>
 		<springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
 	</properties>
